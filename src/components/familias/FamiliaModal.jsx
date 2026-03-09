@@ -13,6 +13,7 @@ const municipios = ["Campo Grande", "Dourados", "Três Lagoas", "Corumbá", "Pon
 const EMPTY = {
   numero_nis: "", nome_responsavel: "", cpf_responsavel: "", data_nascimento: "",
   telefone: "", email: "", endereco: "", bairro: "", municipio: "", regiao: "",
+  latitude: "", longitude: "",
   num_membros: "", renda_familiar: "", tipo_familia: "", situacao_cadastral: "Ativo",
   faixa_pobreza: "", status_beneficio: "Aguardando", data_cadastro: new Date().toISOString().split("T")[0],
   observacoes: ""
