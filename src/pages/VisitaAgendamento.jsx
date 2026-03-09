@@ -122,6 +122,7 @@ export default function VisitaAgendamento() {
           {[
             { key: "calendario", icon: CalendarDays, label: "Calendário" },
             { key: "lista",      icon: List,         label: "Lista" },
+            { key: "mapa",       icon: Map,          label: "Mapa" },
           ].map(({ key, icon: Icon, label }) => (
             <button
               key={key}
