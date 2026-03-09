@@ -33,6 +33,20 @@ function Field({ label, required, children }) {
 export default function FamiliaModal({ open, familia, onClose, onSave }) {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
+  const [geoLoading, setGeoLoading] = useState(false);
+
+  const capturarGeolocalizacao = () => {
+    if (!navigator.geolocation) return;
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setForm((f) => ({ ...f, latitude: pos.coords.latitude, longitude: pos.coords.longitude }));
+        setGeoLoading(false);
+      },
+      () => setGeoLoading(false),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   useEffect(() => {
     setForm(familia ? { ...EMPTY, ...familia } : EMPTY);
