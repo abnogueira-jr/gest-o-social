@@ -1,4 +1,5 @@
 import KpiCards from "@/components/dashboard/KpiCards";
+import AlertasVisitas from "@/components/dashboard/AlertasVisitas";
 import GraficoRegistroFamilias from "@/components/dashboard/GraficoRegistroFamilias";
 import GraficoEvolucaoPagamentos from "@/components/dashboard/GraficoEvolucaoPagamentos";
 import GraficosTipoPizza from "@/components/dashboard/GraficosTipoPizza";
