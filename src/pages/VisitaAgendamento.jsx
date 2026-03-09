@@ -169,6 +169,11 @@ export default function VisitaAgendamento() {
             />
           </div>
         </div>
+      ) : visao === "mapa" ? (
+        <MapaVisitas
+          visitas={visitasFiltradas}
+          diaSelecionado={diaSelecionado}
+        />
       ) : (
         <AgendamentoLista
           visitas={visitasFiltradas}
