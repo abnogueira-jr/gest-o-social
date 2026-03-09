@@ -66,9 +66,10 @@ const situacaoCor = {
 };
 
 const TABS = [
-  { key: "dados",     label: "Dados",     icon: null },
-  { key: "mapa",      label: "Mapa",      icon: MapPin },
-  { key: "historico", label: "Histórico", icon: Clock },
+  { key: "dados",        label: "Dados",     icon: null },
+  { key: "visitas",      label: "Visitas",   icon: CalendarDays },
+  { key: "mapa",         label: "Mapa",      icon: MapPin },
+  { key: "historico",    label: "Histórico", icon: Clock },
 ];
 
 export default function FamiliaDetalhe({ open, familia, onClose, onEditar }) {
