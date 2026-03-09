@@ -29,7 +29,7 @@ export default function VisitaAgendamento() {
   const [editando, setEditando] = useState(null);
   const [mesAtual, setMesAtual] = useState(new Date());
   const [diaSelecionado, setDiaSelecionado] = useState(null);
-  const [visao, setVisao] = useState("calendario"); // "calendario" | "lista"
+  const [visao, setVisao] = useState("calendario"); // "calendario" | "lista" | "mapa"
 
   const carregar = async () => {
     setLoading(true);
