@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Pencil, MapPin, Clock } from "lucide-react";
 import FamiliaHistorico from "./FamiliaHistorico";
+import FamiliaAgendamentos from "./FamiliaAgendamentos";
 
 function Item({ label, value }) {
   return (
