@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Pencil, MapPin } from "lucide-react";
+import { Pencil, MapPin, Clock } from "lucide-react";
+import FamiliaHistorico from "./FamiliaHistorico";
 
 function Item({ label, value }) {
   return (
@@ -28,10 +28,7 @@ function MapaFamilia({ lat, lng, nome }) {
 
   useEffect(() => {
     if (!mapRef.current) return;
-    if (instanceRef.current) {
-      instanceRef.current.remove();
-      instanceRef.current = null;
-    }
+    if (instanceRef.current) { instanceRef.current.remove(); instanceRef.current = null; }
 
     import("leaflet").then((L) => {
       delete L.Icon.Default.prototype._getIconUrl;
@@ -40,7 +37,6 @@ function MapaFamilia({ lat, lng, nome }) {
         iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
         shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
       });
-
       const map = L.map(mapRef.current).setView([lat, lng], 16);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "© OpenStreetMap contributors",
@@ -49,18 +45,13 @@ function MapaFamilia({ lat, lng, nome }) {
       instanceRef.current = map;
     });
 
-    return () => {
-      if (instanceRef.current) {
-        instanceRef.current.remove();
-        instanceRef.current = null;
-      }
-    };
+    return () => { if (instanceRef.current) { instanceRef.current.remove(); instanceRef.current = null; } };
   }, [lat, lng, nome]);
 
   return (
     <>
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-      <div ref={mapRef} style={{ height: "220px", width: "100%", borderRadius: "8px", zIndex: 0 }} />
+      <div ref={mapRef} style={{ height: "260px", width: "100%", borderRadius: "8px", zIndex: 0 }} />
     </>
   );
 }
@@ -73,7 +64,17 @@ const situacaoCor = {
   "Cancelado": "bg-red-100 text-red-700",
 };
 
+const TABS = [
+  { key: "dados",     label: "Dados",     icon: null },
+  { key: "mapa",      label: "Mapa",      icon: MapPin },
+  { key: "historico", label: "Histórico", icon: Clock },
+];
+
 export default function FamiliaDetalhe({ open, familia, onClose, onEditar }) {
+  const [aba, setAba] = useState("dados");
+
+  useEffect(() => { if (open) setAba("dados"); }, [open]);
+
   if (!familia) return null;
 
   return (
@@ -91,56 +92,92 @@ export default function FamiliaDetalhe({ open, familia, onClose, onEditar }) {
           </div>
         </DialogHeader>
 
-        <div className="space-y-5 py-2">
-          <Section title="Identificação">
-            <Item label="CPF" value={familia.cpf_responsavel} />
-            <Item label="Data de Nascimento" value={familia.data_nascimento} />
-            <Item label="Telefone" value={familia.telefone} />
-            <Item label="E-mail" value={familia.email} />
-            <Item label="Data de Cadastro" value={familia.data_cadastro} />
-          </Section>
+        {/* Abas */}
+        <div className="flex gap-1 border-b border-slate-200 -mx-1 px-1">
+          {TABS.map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              onClick={() => setAba(key)}
+              className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 transition-colors -mb-px
+                ${aba === key
+                  ? "border-sky-600 text-sky-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700"}`}
+            >
+              {Icon && <Icon size={13} />}
+              {label}
+              {key === "mapa" && !familia.latitude && (
+                <span className="text-[10px] text-slate-400">(sem coord.)</span>
+              )}
+            </button>
+          ))}
+        </div>
 
-          <Section title="Endereço">
-            <div className="col-span-2 sm:col-span-3">
-              <p className="text-xs text-slate-400 font-medium">Endereço</p>
-              <p className="text-sm text-slate-800 mt-0.5">{familia.endereco || "—"}</p>
-            </div>
-            <Item label="Bairro" value={familia.bairro} />
-            <Item label="Município" value={familia.municipio} />
-            <Item label="Região" value={familia.regiao} />
-            <Item label="Latitude" value={familia.latitude} />
-            <Item label="Longitude" value={familia.longitude} />
-          </Section>
+        <div className="py-2">
+          {/* ABA DADOS */}
+          {aba === "dados" && (
+            <div className="space-y-5">
+              <Section title="Identificação">
+                <Item label="CPF" value={familia.cpf_responsavel} />
+                <Item label="Data de Nascimento" value={familia.data_nascimento} />
+                <Item label="Telefone" value={familia.telefone} />
+                <Item label="E-mail" value={familia.email} />
+                <Item label="Data de Cadastro" value={familia.data_cadastro} />
+              </Section>
 
-          {familia.latitude && familia.longitude && (
-            <div>
-              <h4 className="text-xs font-semibold text-sky-600 uppercase tracking-wider mb-3 pb-1 border-b border-sky-100 flex items-center gap-1.5">
-                <MapPin size={12} /> Localização no Mapa
-              </h4>
-              <MapaFamilia
-                lat={parseFloat(familia.latitude)}
-                lng={parseFloat(familia.longitude)}
-                nome={familia.nome_responsavel}
-              />
+              <Section title="Endereço">
+                <div className="col-span-2 sm:col-span-3">
+                  <p className="text-xs text-slate-400 font-medium">Endereço</p>
+                  <p className="text-sm text-slate-800 mt-0.5">{familia.endereco || "—"}</p>
+                </div>
+                <Item label="Bairro" value={familia.bairro} />
+                <Item label="Município" value={familia.municipio} />
+                <Item label="Região" value={familia.regiao} />
+                <Item label="Latitude" value={familia.latitude} />
+                <Item label="Longitude" value={familia.longitude} />
+              </Section>
+
+              <Section title="Composição Familiar">
+                <Item label="Nº de Membros" value={familia.num_membros} />
+                <Item label="Renda Familiar" value={familia.renda_familiar ? `R$ ${parseFloat(familia.renda_familiar).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : null} />
+                <Item label="Tipo de Família" value={familia.tipo_familia} />
+              </Section>
+
+              <Section title="Status e Benefício">
+                <Item label="Faixa de Pobreza" value={familia.faixa_pobreza} />
+                <Item label="Status do Benefício" value={familia.status_beneficio} />
+              </Section>
+
+              {familia.observacoes && (
+                <div>
+                  <h4 className="text-xs font-semibold text-sky-600 uppercase tracking-wider mb-2 pb-1 border-b border-sky-100">Observações</h4>
+                  <p className="text-sm text-slate-700 leading-relaxed">{familia.observacoes}</p>
+                </div>
+              )}
             </div>
           )}
 
-          <Section title="Composição Familiar">
-            <Item label="Nº de Membros" value={familia.num_membros} />
-            <Item label="Renda Familiar" value={familia.renda_familiar ? `R$ ${parseFloat(familia.renda_familiar).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : null} />
-            <Item label="Tipo de Família" value={familia.tipo_familia} />
-          </Section>
-
-          <Section title="Status e Benefício">
-            <Item label="Faixa de Pobreza" value={familia.faixa_pobreza} />
-            <Item label="Status do Benefício" value={familia.status_beneficio} />
-          </Section>
-
-          {familia.observacoes && (
+          {/* ABA MAPA */}
+          {aba === "mapa" && (
             <div>
-              <h4 className="text-xs font-semibold text-sky-600 uppercase tracking-wider mb-2 pb-1 border-b border-sky-100">Observações</h4>
-              <p className="text-sm text-slate-700 leading-relaxed">{familia.observacoes}</p>
+              {familia.latitude && familia.longitude ? (
+                <MapaFamilia
+                  lat={parseFloat(familia.latitude)}
+                  lng={parseFloat(familia.longitude)}
+                  nome={familia.nome_responsavel}
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+                  <MapPin size={32} className="opacity-30 mb-2" />
+                  <p className="text-sm">Coordenadas não cadastradas.</p>
+                  <p className="text-xs mt-1">Edite a família para adicionar latitude e longitude.</p>
+                </div>
+              )}
             </div>
+          )}
+
+          {/* ABA HISTÓRICO */}
+          {aba === "historico" && (
+            <FamiliaHistorico familia={familia} />
           )}
         </div>
 
