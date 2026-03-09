@@ -22,6 +22,49 @@ function Section({ title, children }) {
   );
 }
 
+function MapaFamilia({ lat, lng, nome }) {
+  const mapRef = useRef(null);
+  const instanceRef = useRef(null);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    if (instanceRef.current) {
+      instanceRef.current.remove();
+      instanceRef.current = null;
+    }
+
+    import("leaflet").then((L) => {
+      delete L.Icon.Default.prototype._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+      });
+
+      const map = L.map(mapRef.current).setView([lat, lng], 16);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(map);
+      L.marker([lat, lng]).addTo(map).bindPopup(nome).openPopup();
+      instanceRef.current = map;
+    });
+
+    return () => {
+      if (instanceRef.current) {
+        instanceRef.current.remove();
+        instanceRef.current = null;
+      }
+    };
+  }, [lat, lng, nome]);
+
+  return (
+    <>
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+      <div ref={mapRef} style={{ height: "220px", width: "100%", borderRadius: "8px", zIndex: 0 }} />
+    </>
+  );
+}
+
 const situacaoCor = {
   "Ativo": "bg-emerald-100 text-emerald-700",
   "Inativo": "bg-slate-100 text-slate-600",
