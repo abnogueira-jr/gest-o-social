@@ -127,6 +127,46 @@ export default function FamiliaModal({ open, familia, onClose, onSave }) {
                 </Select>
               </Field>
             </div>
+
+            {/* Geolocalização */}
+            <div className="mt-3 p-3 bg-sky-50 rounded-lg border border-sky-100">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-semibold text-sky-700 flex items-center gap-1.5">
+                  <MapPin size={13} /> Coordenadas Geográficas
+                </span>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={capturarGeolocalizacao}
+                  disabled={geoLoading}
+                  className="h-7 text-xs border-sky-300 text-sky-700 hover:bg-sky-100 gap-1"
+                >
+                  {geoLoading ? <Loader2 size={12} className="animate-spin" /> : <Navigation size={12} />}
+                  {geoLoading ? "Obtendo..." : "Usar localização atual"}
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Field label="Latitude">
+                  <Input
+                    type="number"
+                    step="any"
+                    value={form.latitude}
+                    onChange={(e) => set("latitude", e.target.value)}
+                    placeholder="-20.4697"
+                  />
+                </Field>
+                <Field label="Longitude">
+                  <Input
+                    type="number"
+                    step="any"
+                    value={form.longitude}
+                    onChange={(e) => set("longitude", e.target.value)}
+                    placeholder="-54.6201"
+                  />
+                </Field>
+              </div>
+            </div>
           </section>
 
           {/* Composição Familiar */}
