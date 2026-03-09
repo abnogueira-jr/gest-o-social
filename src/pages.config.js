@@ -51,6 +51,7 @@ import Dashboard from './pages/Dashboard';
 import FamiliasCadastro from './pages/FamiliasCadastro';
 import ProgramasContemplacoes from './pages/ProgramasContemplacoes';
 import VisitaAgendamento from './pages/VisitaAgendamento';
+import Relatorios from './pages/Relatorios';
 import __Layout from './Layout.jsx';
 
 
@@ -59,6 +60,7 @@ export const PAGES = {
     "FamiliasCadastro": FamiliasCadastro,
     "ProgramasContemplacoes": ProgramasContemplacoes,
     "VisitaAgendamento": VisitaAgendamento,
+    "Relatorios": Relatorios,
 }
 
 export const pagesConfig = {
