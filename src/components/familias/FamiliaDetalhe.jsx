@@ -158,6 +158,11 @@ export default function FamiliaDetalhe({ open, familia, onClose, onEditar }) {
             </div>
           )}
 
+          {/* ABA VISITAS */}
+          {aba === "visitas" && (
+            <FamiliaAgendamentos familia={familia} />
+          )}
+
           {/* ABA MAPA */}
           {aba === "mapa" && (
             <div>
