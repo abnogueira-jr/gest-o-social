@@ -108,7 +108,22 @@ export default function FamiliaDetalhe({ open, familia, onClose, onEditar }) {
             <Item label="Bairro" value={familia.bairro} />
             <Item label="Município" value={familia.municipio} />
             <Item label="Região" value={familia.regiao} />
+            <Item label="Latitude" value={familia.latitude} />
+            <Item label="Longitude" value={familia.longitude} />
           </Section>
+
+          {familia.latitude && familia.longitude && (
+            <div>
+              <h4 className="text-xs font-semibold text-sky-600 uppercase tracking-wider mb-3 pb-1 border-b border-sky-100 flex items-center gap-1.5">
+                <MapPin size={12} /> Localização no Mapa
+              </h4>
+              <MapaFamilia
+                lat={parseFloat(familia.latitude)}
+                lng={parseFloat(familia.longitude)}
+                nome={familia.nome_responsavel}
+              />
+            </div>
+          )}
 
           <Section title="Composição Familiar">
             <Item label="Nº de Membros" value={familia.num_membros} />
