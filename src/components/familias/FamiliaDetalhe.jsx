@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Pencil, MapPin, Clock } from "lucide-react";
+import { Pencil, MapPin, Clock, CalendarDays } from "lucide-react";
 import FamiliaHistorico from "./FamiliaHistorico";
 import FamiliaAgendamentos from "./FamiliaAgendamentos";
 
