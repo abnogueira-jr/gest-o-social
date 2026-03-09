@@ -18,6 +18,9 @@ export default function Dashboard() {
         <p className="text-sm text-slate-500 capitalize">{hoje}</p>
       </div>
 
+      {/* Alertas de visitas */}
+      <AlertasVisitas />
+
       {/* KPIs */}
       <KpiCards />
 
