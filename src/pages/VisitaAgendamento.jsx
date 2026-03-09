@@ -2,10 +2,11 @@ import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Plus, RefreshCw, CalendarDays, List, Clock, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Plus, RefreshCw, CalendarDays, List, Clock, CheckCircle2, AlertTriangle, Map } from "lucide-react";
 import AgendamentoForm from "../components/visitas/AgendamentoForm";
 import AgendamentoCalendario from "../components/visitas/AgendamentoCalendario";
 import AgendamentoLista from "../components/visitas/AgendamentoLista";
+import MapaVisitas from "../components/visitas/MapaVisitas";
 
 function KpiCard({ icon: Icon, label, valor, cor }) {
   return (
