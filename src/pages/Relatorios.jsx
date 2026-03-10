@@ -479,11 +479,12 @@ export default function Relatorios() {
       ) : (
         <>
           {/* KPIs */}
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-            <KpiCard icon={Calendar}     label="Total de Visitas"     valor={total}          sub={`${mesLabel}/${filtros.ano}`} cor="bg-slate-100 text-slate-600" />
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+            <KpiCard icon={Users}        label="Famílias Atendidas"   valor={familiasAtendidas} sub={`${mesLabel}/${filtros.ano}`} cor="bg-sky-100 text-sky-600" />
+            <KpiCard icon={Calendar}     label="Total de Visitas"     valor={total}          sub={`${agendadas} pendentes`} cor="bg-slate-100 text-slate-600" />
             <KpiCard icon={CheckCircle2} label="Realizadas"           valor={realizadas}     sub={`${taxaEfetividade}% de efetividade`} cor="bg-emerald-100 text-emerald-600" />
-            <KpiCard icon={Calendar}     label="Agendadas"            valor={agendadas}      sub="pendentes" cor="bg-sky-100 text-sky-600" />
             <KpiCard icon={Users}        label="Técnicos Ativos"      valor={tecnicos}       sub="no período" cor="bg-violet-100 text-violet-600" />
+            <KpiCard icon={Heart}        label="Benefícios"           valor={totalBeneficios} sub="concedidos" cor="bg-rose-100 text-rose-600" />
             <KpiCard icon={MapPin}       label="Regiões Atendidas"    valor={dadosRegiao.length} sub="no período" cor="bg-amber-100 text-amber-600" />
           </div>
 
