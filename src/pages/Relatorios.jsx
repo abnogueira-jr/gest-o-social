@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import { BarChart2, Download, RefreshCw, Users, MapPin, CheckCircle2, Calendar } from "lucide-react";
+import { BarChart2, Download, RefreshCw, Users, MapPin, CheckCircle2, Calendar, Heart, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import RelatorioFiltros from "../components/relatorios/RelatorioFiltros";
