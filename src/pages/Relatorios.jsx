@@ -98,12 +98,40 @@ export default function Relatorios() {
     return Object.values(mapa).sort((a, b) => b.total - a.total);
   }, [visitasFiltradas]);
 
+  // Benefícios filtrados pelo mesmo período
+  const contemplacoesFiltradas = useMemo(() => {
+    const mes = parseInt(filtros.mes);
+    const ano = parseInt(filtros.ano);
+    return contemplacoes.filter((c) => {
+      if (!c.data_contemplacao) return false;
+      const d = new Date(c.data_contemplacao + "T00:00:00");
+      return d.getFullYear() === ano && d.getMonth() === mes;
+    });
+  }, [contemplacoes, filtros]);
+
+  // Histórico filtrado pelo período
+  const historicosFiltrados = useMemo(() => {
+    const mes = parseInt(filtros.mes);
+    const ano = parseInt(filtros.ano);
+    return historicos.filter((h) => {
+      if (!h.data_evento) return false;
+      const d = new Date(h.data_evento);
+      return d.getFullYear() === ano && d.getMonth() === mes;
+    });
+  }, [historicos, filtros]);
+
   // KPIs
   const total = visitasFiltradas.length;
   const realizadas = visitasFiltradas.filter((v) => v.status === "Realizada").length;
   const agendadas = visitasFiltradas.filter((v) => v.status === "Agendada").length;
   const taxaEfetividade = total > 0 ? Math.round((realizadas / total) * 100) : 0;
   const tecnicos = new Set(visitasFiltradas.map((v) => v.tecnico_responsavel).filter(Boolean)).size;
+  const totalBeneficios = contemplacoesFiltradas.length;
+  const valorTotalBeneficios = contemplacoesFiltradas.reduce((acc, c) => acc + (parseFloat(c.valor) || 0), 0);
+  const familiasAtendidas = new Set([
+    ...visitasFiltradas.map((v) => v.familia_id).filter(Boolean),
+    ...contemplacoesFiltradas.map((c) => c.familia_id).filter(Boolean),
+  ]).size;
 
   // Exportar PDF
   const exportarPDF = async () => {
