@@ -133,142 +133,305 @@ export default function Relatorios() {
     ...contemplacoesFiltradas.map((c) => c.familia_id).filter(Boolean),
   ]).size;
 
-  // Exportar PDF
+  // helpers PDF
+  const pdfHeader = (doc, titulo, subtitulo) => {
+    doc.setFillColor(14, 165, 233);
+    doc.rect(0, 0, 210, 30, "F");
+    doc.setFillColor(7, 130, 185);
+    doc.rect(0, 24, 210, 6, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(15);
+    doc.setFont("helvetica", "bold");
+    doc.text("Gestão Social Estadual", 14, 12);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(subtitulo, 14, 21);
+    doc.setFontSize(8);
+    doc.text(`Gerado em ${new Date().toLocaleDateString("pt-BR")} às ${new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}`, 196, 21, { align: "right" });
+    doc.setTextColor(30, 41, 59);
+    return 38;
+  };
+
+  const pdfSectionTitle = (doc, text, y) => {
+    doc.setFillColor(241, 245, 249);
+    doc.rect(14, y - 4, 182, 8, "F");
+    doc.setFontSize(8.5);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(14, 165, 233);
+    doc.text(text, 17, y + 1);
+    doc.setTextColor(30, 41, 59);
+    return y + 8;
+  };
+
+  const pdfTableHeader = (doc, cols, y) => {
+    doc.setFillColor(30, 41, 59);
+    doc.rect(14, y, 182, 7, "F");
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(255, 255, 255);
+    cols.forEach(({ text, x, align }) => doc.text(text, x, y + 5, { align: align || "left" }));
+    doc.setTextColor(30, 41, 59);
+    return y + 8;
+  };
+
+  const pdfTableRow = (doc, cols, y, idx) => {
+    if (idx % 2 === 0) {
+      doc.setFillColor(248, 250, 252);
+      doc.rect(14, y - 2, 182, 7, "F");
+    }
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(7.5);
+    cols.forEach(({ text, x, align }) => doc.text(String(text ?? "—"), x, y + 3, { align: align || "left" }));
+    return y + 7;
+  };
+
+  const checkPage = (doc, y, margin = 260) => {
+    if (y > margin) { doc.addPage(); return 20; }
+    return y;
+  };
+
   const exportarPDF = async () => {
     setExportando(true);
     try {
       const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const mesLabel = MESES_LABEL[parseInt(filtros.mes)];
-      const titulo = `Relatório de Visitas — ${mesLabel}/${filtros.ano}`;
+      const periodoLabel = `${mesLabel}/${filtros.ano}`;
+      const subtitulo = `Relatório Mensal de Atividades — ${periodoLabel}${filtros.regiao !== "Todas" ? ` · ${filtros.regiao}` : ""}`;
 
-      // Cabeçalho
-      doc.setFillColor(14, 165, 233);
-      doc.rect(0, 0, 210, 28, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.text("Gestão Social Estadual", 14, 12);
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "normal");
-      doc.text(titulo, 14, 20);
-      doc.text(`Gerado em ${new Date().toLocaleDateString("pt-BR")}`, 148, 20);
+      // ── PÁGINA 1: Capa e resumo executivo ──────────────────────────────
+      let y = pdfHeader(doc, "Relatório Mensal", subtitulo);
 
-      // KPIs
-      doc.setTextColor(30, 41, 59);
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "bold");
-      let y = 36;
-      doc.text("RESUMO DO PERÍODO", 14, y);
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "normal");
-      y += 6;
-      const kpis = [
-        ["Total de Visitas", total],
-        ["Realizadas", realizadas],
-        ["Agendadas", agendadas],
-        ["Taxa de Efetividade", `${taxaEfetividade}%`],
-        ["Técnicos Ativos", tecnicos],
+      // Bloco de KPIs resumo
+      y = pdfSectionTitle(doc, "RESUMO EXECUTIVO DO PERÍODO", y);
+      y += 2;
+
+      const kpiCols = 3;
+      const kpiW = 58;
+      const kpiH = 20;
+      const kpiData = [
+        { label: "Famílias Atendidas",   val: familiasAtendidas,   cor: [14,165,233] },
+        { label: "Total de Visitas",      val: total,               cor: [99,102,241] },
+        { label: "Visitas Realizadas",    val: realizadas,          cor: [16,185,129] },
+        { label: "Taxa de Efetividade",   val: `${taxaEfetividade}%`, cor: [245,158,11] },
+        { label: "Benefícios Concedidos", val: totalBeneficios,     cor: [239,68,68]  },
+        { label: "Valor Total (R$)",      val: valorTotalBeneficios.toLocaleString("pt-BR", { minimumFractionDigits: 2 }), cor: [34,197,94] },
       ];
-      kpis.forEach(([label, val], i) => {
-        const x = 14 + (i % 5) * 38;
-        if (i % 5 === 0 && i > 0) y += 12;
+
+      kpiData.forEach((k, i) => {
+        const col = i % kpiCols;
+        const row = Math.floor(i / kpiCols);
+        const x = 14 + col * (kpiW + 2);
+        const ky = y + row * (kpiH + 2);
         doc.setFillColor(248, 250, 252);
-        doc.roundedRect(x, y, 36, 16, 2, 2, "F");
+        doc.roundedRect(x, ky, kpiW, kpiH, 2, 2, "F");
+        doc.setDrawColor(...k.cor);
+        doc.setLineWidth(0.8);
+        doc.line(x, ky, x, ky + kpiH);
+        doc.setLineWidth(0.2);
         doc.setFont("helvetica", "bold");
-        doc.setFontSize(11);
-        doc.text(String(val), x + 18, y + 8, { align: "center" });
+        doc.setFontSize(13);
+        doc.setTextColor(...k.cor);
+        doc.text(String(k.val), x + kpiW / 2, ky + 10, { align: "center" });
         doc.setFont("helvetica", "normal");
         doc.setFontSize(7);
-        doc.text(label, x + 18, y + 13, { align: "center" });
+        doc.setTextColor(100, 116, 139);
+        doc.text(k.label, x + kpiW / 2, ky + 16, { align: "center" });
       });
 
-      y += 24;
-
-      // Tabela por técnico
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
+      y += Math.ceil(kpiData.length / kpiCols) * (kpiH + 2) + 6;
       doc.setTextColor(30, 41, 59);
-      doc.text("DESEMPENHO POR TÉCNICO", 14, y);
-      y += 5;
 
-      // Cabeçalho da tabela
-      doc.setFillColor(241, 245, 249);
-      doc.rect(14, y, 182, 7, "F");
-      doc.setFontSize(7.5);
-      doc.setFont("helvetica", "bold");
-      doc.text("Técnico", 17, y + 5);
-      doc.text("Total", 100, y + 5, { align: "center" });
-      doc.text("Realizadas", 120, y + 5, { align: "center" });
-      doc.text("Agendadas", 140, y + 5, { align: "center" });
-      doc.text("Não Loc.", 158, y + 5, { align: "center" });
-      doc.text("Efetividade", 183, y + 5, { align: "center" });
-      y += 8;
+      // ── SEÇÃO: Desempenho por técnico ──────────────────────────────────
+      y = checkPage(doc, y, 240);
+      y = pdfSectionTitle(doc, "DESEMPENHO POR TÉCNICO", y);
+      y = pdfTableHeader(doc, [
+        { text: "Técnico Responsável", x: 17 },
+        { text: "Total",    x: 102, align: "center" },
+        { text: "Realiz.",  x: 120, align: "center" },
+        { text: "Agend.",   x: 138, align: "center" },
+        { text: "Canc.",    x: 156, align: "center" },
+        { text: "N.Loc.",   x: 172, align: "center" },
+        { text: "Efetiv.",  x: 192, align: "center" },
+      ], y);
 
-      doc.setFont("helvetica", "normal");
       dadosTecnico.forEach((d, i) => {
-        if (y > 260) { doc.addPage(); y = 20; }
-        const taxa = d.total > 0 ? Math.round((d.Realizada / d.total) * 100) : 0;
-        if (i % 2 === 0) {
-          doc.setFillColor(250, 252, 254);
-          doc.rect(14, y - 2, 182, 7, "F");
-        }
-        doc.setFontSize(7.5);
-        doc.text(d.tecnico.substring(0, 28), 17, y + 3);
-        doc.text(String(d.total), 100, y + 3, { align: "center" });
-        doc.text(String(d.Realizada || 0), 120, y + 3, { align: "center" });
-        doc.text(String(d.Agendada || 0), 140, y + 3, { align: "center" });
-        doc.text(String(d["Não Localizada"] || 0), 158, y + 3, { align: "center" });
-        doc.text(`${taxa}%`, 183, y + 3, { align: "center" });
-        y += 7;
+        y = checkPage(doc, y);
+        const taxa = d.total > 0 ? Math.round(((d["Realizada"] || 0) / d.total) * 100) : 0;
+        y = pdfTableRow(doc, [
+          { text: d.tecnico.substring(0, 30), x: 17 },
+          { text: d.total,                    x: 102, align: "center" },
+          { text: d["Realizada"] || 0,         x: 120, align: "center" },
+          { text: d["Agendada"] || 0,          x: 138, align: "center" },
+          { text: d["Cancelada"] || 0,         x: 156, align: "center" },
+          { text: d["Não Localizada"] || 0,    x: 172, align: "center" },
+          { text: `${taxa}%`,                  x: 192, align: "center" },
+        ], y, i);
       });
 
       y += 6;
 
-      // Tabela por região
+      // ── SEÇÃO: Distribuição por região ─────────────────────────────────
       if (dadosRegiao.length > 0) {
-        if (y > 230) { doc.addPage(); y = 20; }
-        doc.setFont("helvetica", "bold");
-        doc.setFontSize(9);
-        doc.text("DISTRIBUIÇÃO POR REGIÃO", 14, y);
-        y += 5;
-        doc.setFillColor(241, 245, 249);
-        doc.rect(14, y, 182, 7, "F");
-        doc.setFontSize(7.5);
-        doc.text("Região", 17, y + 5);
-        doc.text("Total", 100, y + 5, { align: "center" });
-        doc.text("Realizadas", 130, y + 5, { align: "center" });
-        doc.text("Taxa", 175, y + 5, { align: "center" });
-        y += 8;
-        doc.setFont("helvetica", "normal");
+        y = checkPage(doc, y, 230);
+        y = pdfSectionTitle(doc, "DISTRIBUIÇÃO POR REGIÃO", y);
+        y = pdfTableHeader(doc, [
+          { text: "Região",      x: 17 },
+          { text: "Total",       x: 102, align: "center" },
+          { text: "Realizadas",  x: 130, align: "center" },
+          { text: "Canceladas",  x: 158, align: "center" },
+          { text: "Taxa (%)",    x: 188, align: "center" },
+        ], y);
         dadosRegiao.forEach((d, i) => {
-          if (y > 270) { doc.addPage(); y = 20; }
-          const taxa = d.total > 0 ? Math.round((d.Realizada / d.total) * 100) : 0;
-          if (i % 2 === 0) {
-            doc.setFillColor(250, 252, 254);
-            doc.rect(14, y - 2, 182, 7, "F");
-          }
-          doc.setFontSize(7.5);
-          doc.text(d.regiao, 17, y + 3);
-          doc.text(String(d.total), 100, y + 3, { align: "center" });
-          doc.text(String(d.Realizada || 0), 130, y + 3, { align: "center" });
-          doc.text(`${taxa}%`, 175, y + 3, { align: "center" });
-          y += 7;
+          y = checkPage(doc, y);
+          const taxa = d.total > 0 ? Math.round(((d["Realizada"] || 0) / d.total) * 100) : 0;
+          y = pdfTableRow(doc, [
+            { text: d.regiao,               x: 17 },
+            { text: d.total,                x: 102, align: "center" },
+            { text: d["Realizada"] || 0,    x: 130, align: "center" },
+            { text: d["Cancelada"] || 0,    x: 158, align: "center" },
+            { text: `${taxa}%`,             x: 188, align: "center" },
+          ], y, i);
         });
+        y += 6;
       }
 
-      // Rodapé
+      // ── SEÇÃO: Benefícios concedidos ───────────────────────────────────
+      if (contemplacoesFiltradas.length > 0) {
+        y = checkPage(doc, y, 220);
+        y = pdfSectionTitle(doc, "BENEFÍCIOS CONCEDIDOS NO PERÍODO", y);
+
+        // Resumo por programa
+        const porPrograma = {};
+        contemplacoesFiltradas.forEach((c) => {
+          const prog = c.programa_nome || "Não informado";
+          if (!porPrograma[prog]) porPrograma[prog] = { total: 0, valor: 0, aprovados: 0 };
+          porPrograma[prog].total++;
+          porPrograma[prog].valor += parseFloat(c.valor) || 0;
+          if (c.status === "Aprovado") porPrograma[prog].aprovados++;
+        });
+
+        y = pdfTableHeader(doc, [
+          { text: "Programa Social",  x: 17 },
+          { text: "Contemplações",    x: 110, align: "center" },
+          { text: "Aprovados",        x: 148, align: "center" },
+          { text: "Valor Total (R$)", x: 193, align: "right" },
+        ], y);
+
+        Object.entries(porPrograma).forEach(([prog, d], i) => {
+          y = checkPage(doc, y);
+          y = pdfTableRow(doc, [
+            { text: prog.substring(0, 38),                                       x: 17 },
+            { text: d.total,                                                     x: 110, align: "center" },
+            { text: d.aprovados,                                                 x: 148, align: "center" },
+            { text: d.valor.toLocaleString("pt-BR", { minimumFractionDigits: 2 }), x: 193, align: "right" },
+          ], y, i);
+        });
+
+        // Linha total
+        y += 1;
+        doc.setFillColor(14, 165, 233);
+        doc.rect(14, y, 182, 7, "F");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(7.5);
+        doc.setTextColor(255, 255, 255);
+        doc.text("TOTAL DO PERÍODO", 17, y + 5);
+        doc.text(String(totalBeneficios), 110, y + 5, { align: "center" });
+        doc.text(
+          valorTotalBeneficios.toLocaleString("pt-BR", { minimumFractionDigits: 2 }),
+          193, y + 5, { align: "right" }
+        );
+        doc.setTextColor(30, 41, 59);
+        y += 12;
+      }
+
+      // ── SEÇÃO: Principais observações técnicas ────────────────────────
+      const obsVisitas = visitasFiltradas
+        .filter((v) => v.observacoes && v.observacoes.trim().length > 5)
+        .slice(0, 15);
+
+      const obsHistorico = historicosFiltrados
+        .filter((h) => h.descricao && h.descricao.trim().length > 5 && (h.tipo === "Atendimento" || h.tipo === "Nota"))
+        .slice(0, 10);
+
+      if (obsVisitas.length > 0 || obsHistorico.length > 0) {
+        y = checkPage(doc, y, 200);
+        y = pdfSectionTitle(doc, "PRINCIPAIS OBSERVAÇÕES TÉCNICAS DO PERÍODO", y);
+
+        if (obsVisitas.length > 0) {
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(7.5);
+          doc.setTextColor(99, 102, 241);
+          doc.text("Observações de Visitas de Campo:", 17, y);
+          doc.setTextColor(30, 41, 59);
+          y += 5;
+
+          obsVisitas.forEach((v) => {
+            y = checkPage(doc, y);
+            const data = v.data_agendamento ? new Date(v.data_agendamento + "T00:00:00").toLocaleDateString("pt-BR") : "—";
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(7);
+            doc.text(`• [${data}] ${(v.familia_nome || "Família").substring(0, 25)} — ${v.tecnico_responsavel || "Técnico não inf."}:`, 17, y);
+            y += 4;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(7);
+            const linhas = doc.splitTextToSize(v.observacoes, 170);
+            linhas.slice(0, 3).forEach((linha) => {
+              y = checkPage(doc, y);
+              doc.text(linha, 22, y);
+              y += 4;
+            });
+            y += 1;
+          });
+        }
+
+        if (obsHistorico.length > 0) {
+          y = checkPage(doc, y, 220);
+          y += 2;
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(7.5);
+          doc.setTextColor(16, 185, 129);
+          doc.text("Registros de Acompanhamento Familiar:", 17, y);
+          doc.setTextColor(30, 41, 59);
+          y += 5;
+
+          obsHistorico.forEach((h) => {
+            y = checkPage(doc, y);
+            const data = h.data_evento ? new Date(h.data_evento).toLocaleDateString("pt-BR") : "—";
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(7);
+            doc.text(`• [${data}] ${(h.familia_nome || "Família").substring(0, 30)} (${h.tipo || "Nota"}):`, 17, y);
+            y += 4;
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(7);
+            const linhas = doc.splitTextToSize(h.descricao, 170);
+            linhas.slice(0, 3).forEach((linha) => {
+              y = checkPage(doc, y);
+              doc.text(linha, 22, y);
+              y += 4;
+            });
+            y += 1;
+          });
+        }
+      }
+
+      // ── Rodapé em todas as páginas ─────────────────────────────────────
       const pageCount = doc.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
+        doc.setFillColor(241, 245, 249);
+        doc.rect(0, 285, 210, 12, "F");
         doc.setFontSize(7);
+        doc.setFont("helvetica", "normal");
         doc.setTextColor(148, 163, 184);
-        doc.text(`Página ${i} de ${pageCount} — Sistema de Gestão Social Estadual`, 105, 290, { align: "center" });
+        doc.text(`Sistema de Gestão Social Estadual — ${subtitulo}`, 14, 291);
+        doc.text(`Página ${i} de ${pageCount}`, 196, 291, { align: "right" });
       }
 
-      doc.save(`relatorio-visitas-${mesLabel.toLowerCase()}-${filtros.ano}.pdf`);
-      toast.success("Relatório exportado com sucesso!");
+      doc.save(`relatorio-mensal-${mesLabel.toLowerCase()}-${filtros.ano}.pdf`);
+      toast.success("Relatório mensal exportado com sucesso!");
     } catch (e) {
-      toast.error("Erro ao gerar PDF.");
+      console.error(e);
+      toast.error("Erro ao gerar PDF: " + e.message);
     }
     setExportando(false);
   };
