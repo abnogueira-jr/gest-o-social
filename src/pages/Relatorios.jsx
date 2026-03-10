@@ -37,14 +37,22 @@ function KpiCard({ icon: Icon, label, valor, sub, cor }) {
 
 export default function Relatorios() {
   const [visitas, setVisitas] = useState([]);
+  const [contemplacoes, setContemplacoes] = useState([]);
+  const [historicos, setHistoricos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [exportando, setExportando] = useState(false);
   const [filtros, setFiltros] = useState(FILTROS_INICIAL);
 
   const carregar = async () => {
     setLoading(true);
-    const data = await base44.entities.VisitaCampo.list("-data_agendamento", 1000);
-    setVisitas(data);
+    const [v, c, h] = await Promise.all([
+      base44.entities.VisitaCampo.list("-data_agendamento", 1000),
+      base44.entities.Contemplacao.list("-data_contemplacao", 1000),
+      base44.entities.HistoricoFamilia.list("-data_evento", 1000),
+    ]);
+    setVisitas(v);
+    setContemplacoes(c);
+    setHistoricos(h);
     setLoading(false);
   };
 
