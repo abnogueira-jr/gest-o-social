@@ -524,6 +524,86 @@ export default function Relatorios() {
                 </div>
                 <TabelaDesempenho dados={dadosTecnico} />
               </div>
+
+              {/* Resumo de benefícios */}
+              {contemplacoesFiltradas.length > 0 && (
+                <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                  <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+                    <Heart size={14} className="text-rose-500" />
+                    <div>
+                      <h3 className="text-sm font-semibold text-slate-700">Benefícios Concedidos no Período</h3>
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {totalBeneficios} contemplação(ões) · Total: R$ {valorTotalBeneficios.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="bg-slate-50 border-b border-slate-100">
+                          <th className="text-left px-5 py-2.5 text-xs font-semibold text-slate-500">Família</th>
+                          <th className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500">Programa</th>
+                          <th className="text-center px-3 py-2.5 text-xs font-semibold text-slate-500">Status</th>
+                          <th className="text-right px-5 py-2.5 text-xs font-semibold text-slate-500">Valor</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {contemplacoesFiltradas.slice(0, 10).map((c) => (
+                          <tr key={c.id} className="border-b border-slate-50 hover:bg-slate-50">
+                            <td className="px-5 py-2 text-xs text-slate-700 font-medium">{c.familia_nome || "—"}</td>
+                            <td className="px-3 py-2 text-xs text-slate-500">{c.programa_nome || "—"}</td>
+                            <td className="px-3 py-2 text-center">
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                                c.status === "Aprovado" ? "bg-emerald-100 text-emerald-700" :
+                                c.status === "Reprovado" ? "bg-red-100 text-red-700" :
+                                "bg-amber-100 text-amber-700"
+                              }`}>{c.status}</span>
+                            </td>
+                            <td className="px-5 py-2 text-xs text-slate-700 text-right font-medium">
+                              {c.valor ? `R$ ${parseFloat(c.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    {contemplacoesFiltradas.length > 10 && (
+                      <p className="text-xs text-slate-400 text-center py-3">
+                        + {contemplacoesFiltradas.length - 10} registro(s) incluídos no PDF
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Prévia das observações técnicas */}
+              {(historicosFiltrados.filter(h => h.descricao?.length > 5).length > 0 ||
+                visitasFiltradas.filter(v => v.observacoes?.length > 5).length > 0) && (
+                <div className="bg-white rounded-xl border border-slate-200 p-5">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FileText size={14} className="text-violet-500" />
+                    <h3 className="text-sm font-semibold text-slate-700">Observações Técnicas do Período</h3>
+                    <span className="text-xs text-slate-400 ml-auto">Incluídas no PDF</span>
+                  </div>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {visitasFiltradas.filter(v => v.observacoes?.trim().length > 5).slice(0, 5).map((v) => (
+                      <div key={v.id} className="bg-violet-50 rounded-lg p-3 border border-violet-100">
+                        <p className="text-[10px] font-semibold text-violet-600 mb-1">
+                          📋 {v.familia_nome} · {v.tecnico_responsavel} · {v.data_agendamento ? new Date(v.data_agendamento + "T00:00:00").toLocaleDateString("pt-BR") : "—"}
+                        </p>
+                        <p className="text-xs text-slate-600 line-clamp-2">{v.observacoes}</p>
+                      </div>
+                    ))}
+                    {historicosFiltrados.filter(h => h.descricao?.trim().length > 5 && (h.tipo === "Atendimento" || h.tipo === "Nota")).slice(0, 5).map((h) => (
+                      <div key={h.id} className="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
+                        <p className="text-[10px] font-semibold text-emerald-600 mb-1">
+                          🗂 {h.familia_nome} · {h.tipo} · {h.data_evento ? new Date(h.data_evento).toLocaleDateString("pt-BR") : "—"}
+                        </p>
+                        <p className="text-xs text-slate-600 line-clamp-2">{h.descricao}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </>
           )}
         </>
