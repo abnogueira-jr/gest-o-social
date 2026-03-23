@@ -68,6 +68,11 @@ export const PAGES = {
     "Relatorios": Relatorios,
     "VisitaAgendamento": VisitaAgendamento,
     "TabelasMunicipios": TabelasMunicipios,
+    "TabelasStatusFamilia": TabelasStatusFamilia,
+    "TabelasStatusVisita": TabelasStatusVisita,
+    "TabelasStatusPrograma": TabelasStatusPrograma,
+    "TabelasStatusPagamento": TabelasStatusPagamento,
+    "TabelasStatusCartao": TabelasStatusCartao,
 }
 
 export const pagesConfig = {
