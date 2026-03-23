@@ -75,6 +75,8 @@ export const PAGES = {
     "TabelasStatusPrograma": TabelasStatusPrograma,
     "TabelasStatusPagamento": TabelasStatusPagamento,
     "TabelasStatusCartao": TabelasStatusCartao,
+    "TabelasRegioes": TabelasRegioes,
+    "TabelasRegioesCG": TabelasRegioesCG,
 }
 
 export const pagesConfig = {
