@@ -58,6 +58,8 @@ import TabelasStatusVisita from './pages/TabelasStatusVisita';
 import TabelasStatusPrograma from './pages/TabelasStatusPrograma';
 import TabelasStatusPagamento from './pages/TabelasStatusPagamento';
 import TabelasStatusCartao from './pages/TabelasStatusCartao';
+import TabelasRegioes from './pages/TabelasRegioes';
+import TabelasRegioesCG from './pages/TabelasRegioesCG';
 import __Layout from './Layout.jsx';
 
 
