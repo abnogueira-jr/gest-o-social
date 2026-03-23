@@ -53,6 +53,11 @@ import ProgramasContemplacoes from './pages/ProgramasContemplacoes';
 import Relatorios from './pages/Relatorios';
 import VisitaAgendamento from './pages/VisitaAgendamento';
 import TabelasMunicipios from './pages/TabelasMunicipios';
+import TabelasStatusFamilia from './pages/TabelasStatusFamilia';
+import TabelasStatusVisita from './pages/TabelasStatusVisita';
+import TabelasStatusPrograma from './pages/TabelasStatusPrograma';
+import TabelasStatusPagamento from './pages/TabelasStatusPagamento';
+import TabelasStatusCartao from './pages/TabelasStatusCartao';
 import __Layout from './Layout.jsx';
 
 
