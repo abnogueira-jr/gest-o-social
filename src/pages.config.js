@@ -62,6 +62,7 @@ export const PAGES = {
     "ProgramasContemplacoes": ProgramasContemplacoes,
     "Relatorios": Relatorios,
     "VisitaAgendamento": VisitaAgendamento,
+    "TabelasMunicipios": TabelasMunicipios,
 }
 
 export const pagesConfig = {
