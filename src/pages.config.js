@@ -52,6 +52,7 @@ import FamiliasCadastro from './pages/FamiliasCadastro';
 import ProgramasContemplacoes from './pages/ProgramasContemplacoes';
 import Relatorios from './pages/Relatorios';
 import VisitaAgendamento from './pages/VisitaAgendamento';
+import TabelasMunicipios from './pages/TabelasMunicipios';
 import __Layout from './Layout.jsx';
 
 
