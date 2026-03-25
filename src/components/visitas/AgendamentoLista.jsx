@@ -59,8 +59,25 @@ export default function AgendamentoLista({ visitas, onEditar, onExcluir, titulo 
                 </span>
               )}
             </div>
-            {v.observacoes && (
+            {v.resultado && (
+              <p className="text-xs text-slate-500 italic truncate">"{v.resultado}"</p>
+            )}
+            {!v.resultado && v.observacoes && (
               <p className="text-xs text-slate-400 truncate">{v.observacoes}</p>
+            )}
+            {v.fotos?.length > 0 && (
+              <div className="flex gap-1 mt-1 flex-wrap">
+                {v.fotos.slice(0, 4).map((url, i) => (
+                  <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                    <img src={url} alt={`Foto ${i+1}`} className="w-9 h-9 rounded object-cover border border-slate-200 hover:opacity-75 transition-opacity" />
+                  </a>
+                ))}
+                {v.fotos.length > 4 && (
+                  <div className="w-9 h-9 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-[10px] text-slate-500 font-medium">
+                    +{v.fotos.length - 4}
+                  </div>
+                )}
+              </div>
             )}
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">

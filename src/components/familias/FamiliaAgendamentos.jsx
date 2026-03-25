@@ -6,8 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Plus, CalendarDays, ChevronLeft, ChevronRight, Loader2,
-  User, Clock, CheckCircle2, XCircle, AlertCircle, ChevronUp, Pencil, Trash2
+  User, Clock, CheckCircle2, XCircle, AlertCircle, ChevronUp, Pencil, Trash2, Camera
 } from "lucide-react";
+import UploadFotos from "../visitas/UploadFotos";
 import { toast } from "sonner";
 
 const TECNICOS = ["Ana Lima", "Carlos Souza", "Fernanda Rocha", "João Mendes", "Maria Santos", "Paulo Alves"];
@@ -32,6 +33,9 @@ const FORM_INICIAL = {
   tipo_visita: "Acompanhamento",
   status: "Agendada",
   observacoes: "",
+  data_visita: "",
+  resultado: "",
+  fotos: [],
 };
 
 function MiniCalendario({ visitas, mes, onMes, onDia, diaSelecionado }) {
@@ -149,8 +153,22 @@ function VisitaCard({ visita, onEditar, onExcluir }) {
             <User size={10} /> {visita.tecnico_responsavel}
           </p>
         )}
-        {visita.observacoes && (
-          <p className="text-xs text-slate-500 mt-1 line-clamp-2">{visita.observacoes}</p>
+        {visita.resultado && (
+          <p className="text-xs text-slate-500 mt-1 line-clamp-2 italic">"{visita.resultado}"</p>
+        )}
+        {visita.fotos?.length > 0 && (
+          <div className="flex gap-1 mt-1.5 flex-wrap">
+            {visita.fotos.slice(0, 4).map((url, i) => (
+              <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                <img src={url} alt={`Foto ${i+1}`} className="w-10 h-10 rounded object-cover border border-slate-200 hover:opacity-80 transition-opacity" />
+              </a>
+            ))}
+            {visita.fotos.length > 4 && (
+              <div className="w-10 h-10 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-xs text-slate-500 font-medium">
+                +{visita.fotos.length - 4}
+              </div>
+            )}
+          </div>
         )}
       </div>
       <div className="flex flex-col gap-1 flex-shrink-0">
@@ -191,7 +209,13 @@ function FormAgendamento({ familia, visitaEditando, onSalvo, onCancelar }) {
     };
     if (visitaEditando?.id) {
       await base44.entities.VisitaCampo.update(visitaEditando.id, payload);
-      toast.success("Agendamento atualizado!");
+      // Atualiza status da família automaticamente ao concluir visita
+      if (form.status === "Realizada" && familia.id) {
+        await base44.entities.Familia.update(familia.id, { situacao_cadastral: "Ativo" });
+        toast.success("Visita registrada! Status da família atualizado para Ativo.");
+      } else {
+        toast.success("Agendamento atualizado!");
+      }
     } else {
       await base44.entities.VisitaCampo.create(payload);
       toast.success("Visita agendada!");
@@ -257,6 +281,39 @@ function FormAgendamento({ familia, visitaEditando, onSalvo, onCancelar }) {
           placeholder="Orientações para o técnico..."
         />
       </div>
+
+      {/* Campos de registro — visível ao concluir */}
+      {(form.status === "Realizada" || form.status === "Não Localizada") && (
+        <div className="border-t border-sky-200 pt-3 space-y-3">
+          <p className="text-xs font-semibold text-sky-700 uppercase tracking-wider">Registro da Visita</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-slate-600">Data da Visita</label>
+              <Input
+                type="date"
+                value={form.data_visita}
+                onChange={(e) => set("data_visita", e.target.value)}
+                className="h-8 text-sm"
+              />
+            </div>
+            <div className="space-y-1 col-span-2">
+              <label className="text-xs font-medium text-slate-600">Resultado / Parecer Técnico</label>
+              <Textarea
+                rows={2}
+                value={form.resultado}
+                onChange={(e) => set("resultado", e.target.value)}
+                placeholder="Descreva o resultado da visita..."
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-slate-600 flex items-center gap-1.5">
+              <Camera size={12} /> Fotos da Visita
+            </label>
+            <UploadFotos fotos={form.fotos || []} onChange={(f) => set("fotos", f)} />
+          </div>
+        </div>
+      )}
 
       <div className="flex justify-end gap-2">
         <Button size="sm" variant="outline" onClick={onCancelar} disabled={saving}>

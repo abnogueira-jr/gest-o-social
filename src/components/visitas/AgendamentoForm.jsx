@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { base44 } from "@/api/base44Client";
+import UploadFotos from "./UploadFotos";
+import { Camera } from "lucide-react";
 
 const TIPOS = ["Busca Ativa", "Acompanhamento", "Validação", "Monitoramento"];
 const TECNICOS = ["Ana Lima", "Carlos Souza", "Fernanda Rocha", "João Mendes", "Maria Santos", "Paulo Alves"];
@@ -18,6 +20,9 @@ const INICIAL = {
   tipo_visita: "Acompanhamento",
   observacoes: "",
   status: "Agendada",
+  data_visita: "",
+  resultado: "",
+  fotos: [],
 };
 
 function Campo({ label, required, children }) {
@@ -64,6 +69,10 @@ export default function AgendamentoForm({ open, visita, onClose, onSalvar }) {
     if (!form.familia_nome || !form.data_agendamento || !form.tecnico_responsavel) return;
     setSaving(true);
     await onSalvar(form);
+    // Atualiza status da família automaticamente ao concluir visita
+    if (form.status === "Realizada" && form.familia_id) {
+      await base44.entities.Familia.update(form.familia_id, { situacao_cadastral: "Ativo" });
+    }
     setSaving(false);
     onClose();
   };
@@ -164,12 +173,33 @@ export default function AgendamentoForm({ open, visita, onClose, onSalvar }) {
           {/* Observações */}
           <Campo label="Observações">
             <Textarea
-              rows={3}
+              rows={2}
               placeholder="Orientações para o técnico, rota, horário preferencial..."
               value={form.observacoes}
               onChange={(e) => set("observacoes", e.target.value)}
             />
           </Campo>
+
+          {/* Registro da visita — exibido ao concluir */}
+          {(form.status === "Realizada" || form.status === "Não Localizada") && (
+            <div className="border-t border-slate-200 pt-3 space-y-3">
+              <p className="text-xs font-semibold text-sky-700 uppercase tracking-wider">Registro da Visita</p>
+              <Campo label="Data da Visita">
+                <Input type="date" value={form.data_visita} onChange={(e) => set("data_visita", e.target.value)} />
+              </Campo>
+              <Campo label="Resultado / Parecer Técnico">
+                <Textarea
+                  rows={2}
+                  placeholder="Descreva o resultado da visita..."
+                  value={form.resultado}
+                  onChange={(e) => set("resultado", e.target.value)}
+                />
+              </Campo>
+              <Campo label={<span className="flex items-center gap-1.5"><Camera size={12} /> Fotos da Visita</span>}>
+                <UploadFotos fotos={form.fotos || []} onChange={(f) => set("fotos", f)} />
+              </Campo>
+            </div>
+          )}
         </div>
 
         <DialogFooter>
