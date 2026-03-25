@@ -68,10 +68,17 @@ export default function AgendamentoForm({ open, visita, onClose, onSalvar }) {
   const handleSubmit = async () => {
     if (!form.familia_nome || !form.data_agendamento || !form.tecnico_responsavel) return;
     setSaving(true);
-    await onSalvar(form);
+    const visitaSalva = await onSalvar(form);
     // Atualiza status da família automaticamente ao concluir visita
     if (form.status === "Realizada" && form.familia_id) {
       await base44.entities.Familia.update(form.familia_id, { situacao_cadastral: "Ativo" });
+    }
+    // Envia confirmação WhatsApp apenas em novo agendamento com família vinculada
+    if (!isEdit && form.familia_id) {
+      const visita_id = visitaSalva?.id || visitaSalva?.data?.id;
+      if (visita_id) {
+        base44.functions.invoke("enviarWhatsapp", { visita_id, tipo: "confirmacao" }).catch(() => {});
+      }
     }
     setSaving(false);
     onClose();
