@@ -94,7 +94,8 @@ const menuItems = [
     label: "Configurações",
     icon: Settings,
     children: [
-      { label: "Usuários", page: "ConfigUsuarios" }
+      { label: "Usuários", page: "ConfigUsuarios" },
+      { label: "Supabase", page: "ConfigSupabase" }
     ]
   }
 ];

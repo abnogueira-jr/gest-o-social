@@ -60,6 +60,7 @@ import TabelasStatusPagamento from './pages/TabelasStatusPagamento';
 import TabelasStatusCartao from './pages/TabelasStatusCartao';
 import TabelasRegioes from './pages/TabelasRegioes';
 import TabelasRegioesCG from './pages/TabelasRegioesCG';
+import ConfigSupabase from './pages/ConfigSupabase';
 import __Layout from './Layout.jsx';
 
 
@@ -77,6 +78,7 @@ export const PAGES = {
     "TabelasStatusCartao": TabelasStatusCartao,
     "TabelasRegioes": TabelasRegioes,
     "TabelasRegioesCG": TabelasRegioesCG,
+    "ConfigSupabase": ConfigSupabase,
 }
 
 export const pagesConfig = {
