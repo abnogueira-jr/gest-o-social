@@ -37,21 +37,12 @@ function ProgramaCard({ programa, onEdit, onToggleStatus }) {
         <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">{programa.descricao}</p>
       )}
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-slate-50 rounded-lg p-3">
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
-            <DollarSign size={12} />
-            <span>Valor do Benefício</span>
-          </div>
-          <p className="text-xs font-semibold text-slate-800">{fmt(programa.valor_beneficio)}</p>
+      <div className="bg-slate-50 rounded-lg p-3">
+        <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
+          <DollarSign size={12} />
+          <span>Valor do Benefício</span>
         </div>
-        <div className="bg-slate-50 rounded-lg p-3">
-          <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
-            <TrendingUp size={12} />
-            <span>Limite Orçamentário</span>
-          </div>
-          <p className="text-xs font-semibold text-slate-800">{fmt(programa.limite_orcamentario)}</p>
-        </div>
+        <p className="text-sm font-semibold text-slate-800">{fmt(programa.valor_beneficio)}</p>
       </div>
 
       <div className="flex items-center justify-between pt-1 border-t border-slate-100">
