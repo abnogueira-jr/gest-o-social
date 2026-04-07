@@ -15,7 +15,7 @@ function StatusBadge({ status }) {
 }
 
 function ProgramaCard({ programa, onEdit, onToggleStatus }) {
-  const fmt = v => v ? `R$ ${parseFloat(v).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—";
+  const fmt = v => v ? `R$ ${parseFloat(v).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "—";
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col gap-4">
@@ -41,16 +41,16 @@ function ProgramaCard({ programa, onEdit, onToggleStatus }) {
         <div className="bg-slate-50 rounded-lg p-3">
           <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
             <DollarSign size={12} />
-            Valor do Benefício
+            <span>Valor do Benefício</span>
           </div>
-          <p className="text-sm font-semibold text-slate-800">{fmt(programa.valor_beneficio)}</p>
+          <p className="text-sm font-semibold text-slate-800 break-all">{fmt(programa.valor_beneficio)}</p>
         </div>
         <div className="bg-slate-50 rounded-lg p-3">
           <div className="flex items-center gap-1.5 text-xs text-slate-500 mb-1">
             <TrendingUp size={12} />
-            Limite Orçamentário
+            <span>Limite Orçamentário</span>
           </div>
-          <p className="text-sm font-semibold text-slate-800">{fmt(programa.limite_orcamentario)}</p>
+          <p className="text-sm font-semibold text-slate-800 break-all">{fmt(programa.limite_orcamentario)}</p>
         </div>
       </div>
 
