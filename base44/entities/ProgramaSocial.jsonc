@@ -1,0 +1,53 @@
+{
+  "name": "ProgramaSocial",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do programa social"
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "Federal",
+        "Estadual",
+        "Municipal"
+      ]
+    },
+    "valor_beneficio": {
+      "type": "number"
+    },
+    "limite_orcamentario": {
+      "type": "number",
+      "description": "Limite do valor or\u00e7ament\u00e1rio do programa"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Ativo",
+        "Inativo",
+        "Suspenso"
+      ]
+    },
+    "data_inicio": {
+      "type": "string",
+      "format": "date"
+    },
+    "data_fim": {
+      "type": "string",
+      "format": "date"
+    },
+    "total_vagas": {
+      "type": "number"
+    },
+    "vagas_ocupadas": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "nome"
+  ]
+}
