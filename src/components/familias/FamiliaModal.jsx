@@ -93,7 +93,7 @@ function Step1({ form, set }) {
           <Field label="CPF" required>
             <Input value={form.cpf_responsavel} onChange={e => set("cpf_responsavel", e.target.value)} placeholder="000.000.000-00" />
           </Field>
-          <Field label="Cadastro Único">
+          <Field label="Código Familiar">
             <Input value={form.cadastro_unico} onChange={e => set("cadastro_unico", e.target.value)} placeholder="0000 000 0000" />
           </Field>
           <Field label="Nome Completo" required className="sm:col-span-2">
