@@ -6,6 +6,7 @@ import GraficosTipoPizza from "@/components/dashboard/GraficosTipoPizza";
 import GraficosPorRenda from "@/components/dashboard/GraficosPorenda";
 import AtividadesRecentes from "@/components/dashboard/AtividadesRecentes";
 import MapaDistribuicao from "@/components/dashboard/MapaDistribuicao";
+import MapaFamilias from "@/components/dashboard/MapaFamilias";
 
 export default function Dashboard() {
   const hoje = new Date().toLocaleDateString("pt-BR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
@@ -35,6 +36,9 @@ export default function Dashboard() {
 
       {/* Barras sem programa + Pizza com programa */}
       <GraficosPorRenda />
+
+      {/* Mapa MS */}
+      <MapaFamilias />
 
       {/* Atividades recentes + Mapa */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
