@@ -1,0 +1,320 @@
+{
+  "name": "Familia",
+  "type": "object",
+  "properties": {
+    "numero_nis": {
+      "type": "string",
+      "description": "N\u00famero NIS da fam\u00edlia"
+    },
+    "cadastro_unico": {
+      "type": "string",
+      "description": "N\u00famero do Cadastro \u00danico"
+    },
+    "nome_responsavel": {
+      "type": "string",
+      "description": "Nome do respons\u00e1vel familiar"
+    },
+    "cpf_responsavel": {
+      "type": "string",
+      "description": "CPF do respons\u00e1vel"
+    },
+    "rg_numero": {
+      "type": "string",
+      "description": "RG do respons\u00e1vel"
+    },
+    "data_nascimento": {
+      "type": "string",
+      "format": "date"
+    },
+    "genero": {
+      "type": "string",
+      "enum": [
+        "Masculino",
+        "Feminino",
+        "Outro"
+      ]
+    },
+    "estado_civil": {
+      "type": "string",
+      "enum": [
+        "Solteiro(a)",
+        "Casado(a)",
+        "Divorciado(a)",
+        "Vi\u00favo(a)",
+        "Uni\u00e3o Est\u00e1vel"
+      ]
+    },
+    "nacionalidade": {
+      "type": "string",
+      "default": "Brasileira"
+    },
+    "escolaridade": {
+      "type": "string",
+      "enum": [
+        "N\u00e3o Alfabetizado",
+        "Ensino Fundamental Incompleto",
+        "Ensino Fundamental Completo",
+        "Ensino M\u00e9dio Incompleto",
+        "Ensino M\u00e9dio Completo",
+        "Ensino Superior Incompleto",
+        "Ensino Superior Completo",
+        "P\u00f3s-gradua\u00e7\u00e3o"
+      ]
+    },
+    "ultima_serie": {
+      "type": "string"
+    },
+    "recadastro": {
+      "type": "boolean",
+      "default": false
+    },
+    "telefone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "situacao_ocupacao": {
+      "type": "string",
+      "enum": [
+        "Empregado",
+        "Desempregado",
+        "Aut\u00f4nomo",
+        "Aposentado",
+        "Do Lar",
+        "Estudante"
+      ]
+    },
+    "participa_qualifica_ms": {
+      "type": "boolean",
+      "default": false
+    },
+    "possui_doenca": {
+      "type": "boolean",
+      "default": false
+    },
+    "possui_deficiencia": {
+      "type": "boolean",
+      "default": false
+    },
+    "possui_beneficio": {
+      "type": "boolean",
+      "default": false
+    },
+    "renda_mensal": {
+      "type": "number"
+    },
+    "renda_per_capita": {
+      "type": "number"
+    },
+    "beneficios_lista": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "valor": {
+            "type": "number"
+          },
+          "do_beneficiario": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "patrimonios": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "endereco": {
+      "type": "string"
+    },
+    "cep": {
+      "type": "string"
+    },
+    "bairro": {
+      "type": "string"
+    },
+    "regiao": {
+      "type": "string"
+    },
+    "estado": {
+      "type": "string",
+      "default": "Mato Grosso do Sul"
+    },
+    "municipio": {
+      "type": "string"
+    },
+    "situacao_moradia": {
+      "type": "string",
+      "enum": [
+        "Pr\u00f3pria",
+        "Alugada",
+        "Cedida",
+        "Irregular",
+        "Financiada"
+      ]
+    },
+    "tipo_moradia": {
+      "type": "string",
+      "enum": [
+        "Casa",
+        "Apartamento",
+        "C\u00f4modo",
+        "Improvisada"
+      ]
+    },
+    "tempo_residencia_ms": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "membros_familiares": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string"
+          },
+          "data_nascimento": {
+            "type": "string"
+          },
+          "estado_civil": {
+            "type": "string"
+          },
+          "parentesco": {
+            "type": "string"
+          },
+          "escolaridade": {
+            "type": "string"
+          },
+          "ultima_serie": {
+            "type": "string"
+          },
+          "frequenta_escola": {
+            "type": "boolean"
+          },
+          "possui_doenca": {
+            "type": "boolean"
+          },
+          "possui_deficiencia": {
+            "type": "boolean"
+          },
+          "possui_autismo": {
+            "type": "boolean"
+          },
+          "possui_renda": {
+            "type": "boolean"
+          },
+          "observacoes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "documentos_obrigatorios": {
+      "type": "object",
+      "properties": {
+        "termo_veracidade": {
+          "type": "boolean"
+        },
+        "doc_identidade_frente": {
+          "type": "boolean"
+        },
+        "doc_identidade_verso": {
+          "type": "boolean"
+        },
+        "comprovante_residencia": {
+          "type": "boolean"
+        },
+        "comprovante_renda": {
+          "type": "boolean"
+        }
+      }
+    },
+    "documentos_especificos": {
+      "type": "object",
+      "properties": {
+        "registro_cadastro_federal": {
+          "type": "boolean"
+        },
+        "laudo_medico": {
+          "type": "boolean"
+        },
+        "laudo_deficiencia": {
+          "type": "boolean"
+        },
+        "carteira_vacinacao": {
+          "type": "boolean"
+        },
+        "laudo_autismo": {
+          "type": "boolean"
+        }
+      }
+    },
+    "num_membros": {
+      "type": "number"
+    },
+    "renda_familiar": {
+      "type": "number"
+    },
+    "tipo_familia": {
+      "type": "string",
+      "enum": [
+        "Fam\u00edlia Solo",
+        "Fam\u00edlia com Crian\u00e7as",
+        "Fam\u00edlia com Idosos",
+        "Fam\u00edlia com Deficientes",
+        "Fam\u00edlia com Gestantes"
+      ]
+    },
+    "situacao_cadastral": {
+      "type": "string",
+      "enum": [
+        "Ativo",
+        "Inativo",
+        "Pendente",
+        "Suspenso",
+        "Cancelado"
+      ]
+    },
+    "faixa_pobreza": {
+      "type": "string",
+      "enum": [
+        "Extrema Pobreza",
+        "Pobreza",
+        "Baixa Renda"
+      ]
+    },
+    "status_beneficio": {
+      "type": "string",
+      "enum": [
+        "Ativo",
+        "Suspenso",
+        "Cancelado",
+        "Em An\u00e1lise",
+        "Aguardando"
+      ]
+    },
+    "data_cadastro": {
+      "type": "string",
+      "format": "date"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "nome_responsavel",
+    "cpf_responsavel"
+  ]
+}
