@@ -10,6 +10,10 @@ import { MapPin, Navigation, Loader2, ChevronRight, ChevronLeft, User, Briefcase
 const regioes = ["Bolsão", "Central", "Cone Sul", "Grande Dourados", "Leste", "Norte", "Pantanal", "Sudoeste", "Sul Fronteira"];
 const municipiosMS = ["Água Clara", "Aquidauana", "Bonito", "Campo Grande", "Corumbá", "Coxim", "Dourados", "Jardim", "Maracaju", "Naviraí", "Nova Andradina", "Paranaíba", "Ponta Porã", "Sidrolândia", "Três Lagoas"];
 
+const maskCPF = v => v.replace(/\D/g, "").slice(0, 11).replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+const maskCodigoFamiliar = v => v.replace(/\D/g, "").slice(0, 14).replace(/(\d{5})(\d)/, "$1 $2").replace(/(\d{5})(\d)/, "$1 $2");
+const maskTelefone = v => { const d = v.replace(/\D/g, "").slice(0, 11); if (d.length <= 2) return d.length ? `(${d}` : ""; if (d.length <= 3) return `(${d.slice(0,2)}) ${d.slice(2)}`; if (d.length <= 7) return `(${d.slice(0,2)}) ${d.slice(2,3)} ${d.slice(3)}`; return `(${d.slice(0,2)}) ${d.slice(2,3)} ${d.slice(3,7)}-${d.slice(7)}`; };
+
 const EMPTY = {
   nome_responsavel: "", cpf_responsavel: "", rg_numero: "", cadastro_unico: "",
   data_nascimento: "", genero: "", estado_civil: "", nacionalidade: "Brasileira",
@@ -91,10 +95,10 @@ function Step1({ form, set }) {
         <SectionTitle icon={User} color="text-sky-600">Informações Pessoais</SectionTitle>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="CPF" required>
-            <Input value={form.cpf_responsavel} onChange={e => set("cpf_responsavel", e.target.value)} placeholder="000.000.000-00" />
+            <Input value={form.cpf_responsavel} onChange={e => set("cpf_responsavel", maskCPF(e.target.value))} placeholder="999.999.999-99" />
           </Field>
           <Field label="Código Familiar">
-            <Input value={form.cadastro_unico} onChange={e => set("cadastro_unico", e.target.value)} placeholder="0000 000 0000" />
+            <Input value={form.cadastro_unico} onChange={e => set("cadastro_unico", maskCodigoFamiliar(e.target.value))} placeholder="99999 99999 99" />
           </Field>
           <Field label="Nome Completo" required className="sm:col-span-2">
             <Input value={form.nome_responsavel} onChange={e => set("nome_responsavel", e.target.value)} placeholder="Nome completo" />
@@ -130,7 +134,7 @@ function Step1({ form, set }) {
         <SectionTitle icon={null} color="text-emerald-600">Contato</SectionTitle>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Field label="Telefone">
-            <Input value={form.telefone} onChange={e => set("telefone", e.target.value)} placeholder="(67) 99999-9999" />
+            <Input value={form.telefone} onChange={e => set("telefone", maskTelefone(e.target.value))} placeholder="(67) 9 9999-9999" />
           </Field>
           <Field label="E-mail">
             <Input type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="email@exemplo.com" />
