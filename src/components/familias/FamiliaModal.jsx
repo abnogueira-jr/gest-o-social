@@ -93,6 +93,15 @@ function Step1({ form, set }) {
           <Field label="Nome Completo" required className="sm:col-span-2">
             <Input value={form.nome_responsavel} onChange={e => set("nome_responsavel", e.target.value)} placeholder="Nome completo" />
           </Field>
+          <Field label="CPF" required>
+            <Input value={form.cpf_responsavel} onChange={e => set("cpf_responsavel", e.target.value)} placeholder="000.000.000-00" />
+          </Field>
+          <Field label="RG Número">
+            <Input value={form.rg_numero} onChange={e => set("rg_numero", e.target.value)} placeholder="Número do RG" />
+          </Field>
+          <Field label="Cadastro Único">
+            <Input value={form.cadastro_unico} onChange={e => set("cadastro_unico", e.target.value)} placeholder="0000 000 0000" />
+          </Field>
           <Field label="Data de Nascimento">
             <Input type="date" value={form.data_nascimento} onChange={e => set("data_nascimento", e.target.value)} />
           </Field>
@@ -159,21 +168,6 @@ function Step1({ form, set }) {
 function Step2({ form, set }) {
   return (
     <div className="space-y-5">
-      <div>
-        <SectionTitle icon={null} color="text-sky-600">Identificação</SectionTitle>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Field label="CPF" required>
-            <Input value={form.cpf_responsavel} onChange={e => set("cpf_responsavel", e.target.value)} placeholder="000.000.000-00" />
-          </Field>
-          <Field label="RG Número">
-            <Input value={form.rg_numero} onChange={e => set("rg_numero", e.target.value)} placeholder="Número do RG" />
-          </Field>
-          <Field label="Cadastro Único">
-            <Input value={form.cadastro_unico} onChange={e => set("cadastro_unico", e.target.value)} placeholder="0000 000 0000" />
-          </Field>
-        </div>
-      </div>
-
       <div>
         <SectionTitle icon={null} color="text-emerald-600">Renda Familiar</SectionTitle>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
