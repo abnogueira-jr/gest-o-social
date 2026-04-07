@@ -38,7 +38,12 @@ export default function ProgramaModal({ open, programa, onClose, onSave }) {
   const handleSave = async () => {
     if (!form.nome) return;
     setSaving(true);
-    await onSave(form);
+    const data = {
+      ...form,
+      valor_beneficio: form.valor_beneficio !== "" ? parseFloat(form.valor_beneficio) : null,
+      limite_orcamentario: form.limite_orcamentario !== "" ? parseFloat(form.limite_orcamentario) : null,
+    };
+    await onSave(data);
     setSaving(false);
   };
 
