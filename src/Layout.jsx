@@ -19,6 +19,7 @@ const menuItems = [
     icon: Users,
     children: [
       { label: "Cadastro", page: "FamiliasCadastro" },
+      { label: "Avaliação de Vulnerabilidade", page: "FamiliasAvaliacaoVulnerabilidade" },
       { label: "Busca Ativa", page: "FamiliasBuscaAtiva" },
       { label: "Agenda de Busca Ativa", page: "AgendaBuscaAtiva" }
     ]

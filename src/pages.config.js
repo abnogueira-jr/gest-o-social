@@ -66,6 +66,7 @@ import FamiliasBuscaAtiva from './pages/FamiliasBuscaAtiva';
 import AgendaBuscaAtiva from './pages/AgendaBuscaAtiva';
 import DicionarioDados from './pages/DicionarioDados';
 import ConfigAgentesCampo from './pages/ConfigAgentesCampo';
+import FamiliasAvaliacaoVulnerabilidade from './pages/FamiliasAvaliacaoVulnerabilidade';
 import __Layout from './Layout.jsx';
 
 
@@ -89,6 +90,7 @@ export const PAGES = {
     "AgendaBuscaAtiva": AgendaBuscaAtiva,
     "DicionarioDados": DicionarioDados,
     "ConfigAgentesCampo": ConfigAgentesCampo,
+    "FamiliasAvaliacaoVulnerabilidade": FamiliasAvaliacaoVulnerabilidade,
 }
 
 export const pagesConfig = {
