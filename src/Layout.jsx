@@ -101,6 +101,7 @@ const menuItems = [
     icon: Settings,
     children: [
       { label: "Usuários", page: "ConfigUsuarios" },
+      { label: "Agentes de Campo", page: "ConfigAgentesCampo" },
       { label: "Supabase", page: "ConfigSupabase" }
     ]
   }
