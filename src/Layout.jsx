@@ -92,6 +92,11 @@ const menuItems = [
     ]
   },
   {
+    label: "Dicionário de Dados",
+    icon: Table2,
+    page: "DicionarioDados"
+  },
+  {
     label: "Configurações",
     icon: Settings,
     children: [

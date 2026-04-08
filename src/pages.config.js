@@ -64,6 +64,7 @@ import ConfigSupabase from './pages/ConfigSupabase';
 import ProgramasCadastro from './pages/ProgramasCadastro';
 import FamiliasBuscaAtiva from './pages/FamiliasBuscaAtiva';
 import AgendaBuscaAtiva from './pages/AgendaBuscaAtiva';
+import DicionarioDados from './pages/DicionarioDados';
 import __Layout from './Layout.jsx';
 
 
@@ -85,6 +86,7 @@ export const PAGES = {
     "ProgramasCadastro": ProgramasCadastro,
     "FamiliasBuscaAtiva": FamiliasBuscaAtiva,
     "AgendaBuscaAtiva": AgendaBuscaAtiva,
+    "DicionarioDados": DicionarioDados,
 }
 
 export const pagesConfig = {
