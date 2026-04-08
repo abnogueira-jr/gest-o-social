@@ -19,7 +19,8 @@ const menuItems = [
     icon: Users,
     children: [
       { label: "Cadastro", page: "FamiliasCadastro" },
-      { label: "Busca Ativa", page: "FamiliasBuscaAtiva" }
+      { label: "Busca Ativa", page: "FamiliasBuscaAtiva" },
+      { label: "Agenda de Busca Ativa", page: "AgendaBuscaAtiva" }
     ]
   },
   {

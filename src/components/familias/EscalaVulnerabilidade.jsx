@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FilterX, Eye, Calendar, ShieldAlert } from "lucide-react";
+import AgendamentoLote from "@/components/visitas/AgendamentoLote";
 
 // Calcula pontuação de vulnerabilidade baseada nos dados da família
 function calcularPontuacao(familia) {
@@ -95,6 +96,8 @@ export default function EscalaVulnerabilidade({ open, onClose, familias, onVerDe
   const [municipio, setMunicipio] = useState("");
   const [nome, setNome] = useState("");
   const [filtrado, setFiltrado] = useState(false);
+  const [selecionadas, setSelecionadas] = useState([]);
+  const [showAgendamentoLote, setShowAgendamentoLote] = useState(false);
 
   const municipios = useMemo(() => {
     return [...new Set(familias.map(f => f.municipio).filter(Boolean))].sort();
@@ -117,13 +120,21 @@ export default function EscalaVulnerabilidade({ open, onClose, familias, onVerDe
 
   const toggleVuln = (k) => setVulns(prev => prev.includes(k) ? prev.filter(x => x !== k) : [...prev, k]);
 
-  const handleFiltrar = () => setFiltrado(true);
+  const handleFiltrar = () => { setFiltrado(true); setSelecionadas([]); };
   const handleLimpar = () => {
     setVulns([]); setFaixa(""); setSemBeneficio(false);
-    setMunicipio(""); setNome(""); setFiltrado(false);
+    setMunicipio(""); setNome(""); setFiltrado(false); setSelecionadas([]);
+  };
+
+  const toggleSel = (id) => setSelecionadas(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const toggleTodos = () => {
+    const ids = resultado.map(f => f.id);
+    const todos = ids.every(id => selecionadas.includes(id));
+    setSelecionadas(todos ? [] : ids);
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl max-h-[92vh] overflow-y-auto">
         <DialogHeader>
@@ -234,6 +245,14 @@ export default function EscalaVulnerabilidade({ open, onClose, familias, onVerDe
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 z-10">
                     <tr className="bg-sky-700 text-white">
+                      <th className="px-3 py-2.5 w-8">
+                        <input
+                          type="checkbox"
+                          checked={resultado.length > 0 && resultado.every(f => selecionadas.includes(f.id))}
+                          onChange={toggleTodos}
+                          className="w-3.5 h-3.5 accent-white cursor-pointer"
+                        />
+                      </th>
                       <th className="px-3 py-2.5 text-left text-xs font-semibold">Ranking</th>
                       <th className="px-3 py-2.5 text-left text-xs font-semibold">Pontuação</th>
                       <th className="px-3 py-2.5 text-left text-xs font-semibold">Município</th>
@@ -255,8 +274,16 @@ export default function EscalaVulnerabilidade({ open, onClose, familias, onVerDe
                     ) : resultado.map((f, idx) => (
                       <tr
                         key={f.id}
-                        className={`border-b border-slate-100 hover:bg-sky-50 transition-colors ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/50"}`}
+                        className={`border-b border-slate-100 hover:bg-sky-50 transition-colors ${selecionadas.includes(f.id) ? "bg-sky-50" : idx % 2 === 0 ? "bg-white" : "bg-slate-50/50"}`}
                       >
+                        <td className="px-3 py-2 text-center">
+                          <input
+                            type="checkbox"
+                            checked={selecionadas.includes(f.id)}
+                            onChange={() => toggleSel(f.id)}
+                            className="w-3.5 h-3.5 accent-sky-600 cursor-pointer"
+                          />
+                        </td>
                         <td className="px-3 py-2 text-center">
                           <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${
                             idx === 0 ? "bg-red-500 text-white" :
@@ -294,11 +321,18 @@ export default function EscalaVulnerabilidade({ open, onClose, familias, onVerDe
               </div>
 
               {resultado.length > 0 && (
-                <div className="px-4 py-2 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
-                  <span className="text-xs text-slate-500">{resultado.length} família(s) encontrada(s)</span>
-                  <Button size="sm" variant="outline" className="gap-1.5 text-xs h-7">
+                <div className="px-4 py-2 bg-slate-50 border-t border-slate-200 flex items-center justify-between flex-wrap gap-2">
+                  <span className="text-xs text-slate-500">
+                    {resultado.length} encontrada(s) · <strong className="text-sky-600">{selecionadas.length} selecionada(s)</strong>
+                  </span>
+                  <Button
+                    size="sm"
+                    disabled={selecionadas.length === 0}
+                    onClick={() => setShowAgendamentoLote(true)}
+                    className="gap-1.5 text-xs h-7 bg-sky-600 hover:bg-sky-700"
+                  >
                     <Calendar size={12} />
-                    Eleger para Agendamento de Visita
+                    Agendar {selecionadas.length > 0 ? `(${selecionadas.length})` : ""} Visitas
                   </Button>
                 </div>
               )}
@@ -307,5 +341,14 @@ export default function EscalaVulnerabilidade({ open, onClose, familias, onVerDe
         </div>
       </DialogContent>
     </Dialog>
+
+    {/* Agendamento em Lote a partir da seleção */}
+    <AgendamentoLote
+      open={showAgendamentoLote}
+      familiasPre={selecionadas.map(id => familias.find(f => f.id === id)).filter(Boolean)}
+      onClose={() => setShowAgendamentoLote(false)}
+      onSalvo={() => { setShowAgendamentoLote(false); onClose(); }}
+    />
+  </>
   );
 }

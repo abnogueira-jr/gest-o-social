@@ -1,0 +1,102 @@
+{
+  "name": "VisitaCampo",
+  "type": "object",
+  "properties": {
+    "familia_id": {
+      "type": "string",
+      "description": "ID da fam\u00edlia visitada"
+    },
+    "familia_nome": {
+      "type": "string"
+    },
+    "tecnico_responsavel": {
+      "type": "string"
+    },
+    "data_agendamento": {
+      "type": "string",
+      "format": "date"
+    },
+    "data_visita": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Agendada",
+        "Realizada",
+        "Cancelada",
+        "Reagendada",
+        "N\u00e3o Localizada"
+      ]
+    },
+    "tipo_visita": {
+      "type": "string",
+      "enum": [
+        "Busca Ativa",
+        "Acompanhamento",
+        "Valida\u00e7\u00e3o",
+        "Monitoramento"
+      ]
+    },
+    "prioridade_visita": {
+      "type": "string",
+      "enum": [
+        "Urgente",
+        "Alta",
+        "Normal",
+        "Baixa"
+      ],
+      "default": "Normal",
+      "description": "Prioridade da visita baseada na pontua\u00e7\u00e3o de vulnerabilidade"
+    },
+    "pontuacao_vulnerabilidade": {
+      "type": "number",
+      "description": "Pontua\u00e7\u00e3o calculada pela Escala de Vulnerabilidade"
+    },
+    "endereco": {
+      "type": "string"
+    },
+    "bairro": {
+      "type": "string"
+    },
+    "municipio": {
+      "type": "string"
+    },
+    "regiao": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number"
+    },
+    "longitude": {
+      "type": "number"
+    },
+    "observacoes": {
+      "type": "string"
+    },
+    "resultado": {
+      "type": "string"
+    },
+    "validacao_familia": {
+      "type": "boolean",
+      "default": false
+    },
+    "fotos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs das fotos anexadas durante a visita"
+    },
+    "status_familia_atualizado": {
+      "type": "boolean",
+      "default": false,
+      "description": "Indica se o status da fam\u00edlia foi atualizado automaticamente"
+    }
+  },
+  "required": [
+    "familia_nome",
+    "data_agendamento"
+  ]
+}
