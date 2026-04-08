@@ -1,186 +1,342 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Database, RefreshCw, CheckCircle, XCircle, AlertCircle, Copy, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  CheckCircle2, XCircle, AlertTriangle, Database,
+  RefreshCw, Copy, ExternalLink, Loader2, ChevronDown, ChevronUp
+} from "lucide-react";
 
-function StatusBadge({ status }) {
-  const map = {
-    ACTIVE_HEALTHY: { label: "Ativo e Saudável", color: "bg-emerald-100 text-emerald-700", icon: CheckCircle },
-    ACTIVE_UNHEALTHY: { label: "Ativo com Problemas", color: "bg-yellow-100 text-yellow-700", icon: AlertCircle },
-    INACTIVE: { label: "Inativo", color: "bg-slate-100 text-slate-500", icon: XCircle },
-    COMING_UP: { label: "Iniciando...", color: "bg-blue-100 text-blue-600", icon: RefreshCw },
-    GOING_DOWN: { label: "Desligando...", color: "bg-orange-100 text-orange-600", icon: AlertCircle },
-    PAUSED: { label: "Pausado", color: "bg-slate-100 text-slate-500", icon: XCircle },
-  };
-  const cfg = map[status] || { label: status || "Desconhecido", color: "bg-slate-100 text-slate-500", icon: AlertCircle };
-  const Icon = cfg.icon;
-  return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${cfg.color}`}>
-      <Icon size={12} />
-      {cfg.label}
-    </span>
-  );
-}
+const PROJECT_REF = "avqtuoewuodpydpdqvps";
+const SUPABASE_URL = `https://${PROJECT_REF}.supabase.co`;
+const SQL_EDITOR_URL = `https://supabase.com/dashboard/project/${PROJECT_REF}/sql/new`;
 
-function InfoRow({ label, value, copyable }) {
-  const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <div className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
-      <span className="text-xs text-slate-500 w-36 flex-shrink-0">{label}</span>
-      <span className="text-xs text-slate-800 font-mono flex-1 truncate mr-2">{value || "—"}</span>
-      {copyable && value && (
-        <button onClick={handleCopy} className="text-slate-400 hover:text-sky-600 transition-colors flex-shrink-0">
-          <Copy size={13} />
-        </button>
-      )}
-    </div>
-  );
-}
+const ALL_TABLES = [
+  { key: 'familias',           label: 'Famílias' },
+  { key: 'visitas_campo',      label: 'Visitas de Campo' },
+  { key: 'programas_sociais',  label: 'Programas Sociais' },
+  { key: 'contemplacoes',      label: 'Contemplações' },
+  { key: 'pagamentos',         label: 'Pagamentos' },
+  { key: 'cartoes',            label: 'Cartões' },
+  { key: 'lotes_pix',          label: 'Lotes PIX' },
+  { key: 'municipios',         label: 'Municípios' },
+  { key: 'regioes',            label: 'Regiões' },
+  { key: 'regioes_cg',         label: 'Regiões de Campo Grande' },
+  { key: 'agentes_campo',      label: 'Agentes de Campo' },
+  { key: 'status_familia',     label: 'Status de Família' },
+  { key: 'status_visita',      label: 'Status de Visita' },
+  { key: 'status_programa',    label: 'Status de Programa' },
+  { key: 'status_pagamento',   label: 'Status de Pagamento' },
+  { key: 'status_cartao',      label: 'Status de Cartão' },
+  { key: 'historico_familia',  label: 'Histórico de Família' },
+  { key: 'atividades_recentes',label: 'Atividades Recentes' },
+];
+
+const FULL_SQL = `-- =============================================
+-- SCRIPT DE MIGRAÇÃO — GESTÃO SOCIAL ESTADUAL
+-- Execute no SQL Editor do Supabase
+-- =============================================
+
+CREATE TABLE IF NOT EXISTS municipios (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  nome text NOT NULL, uf text NOT NULL, codigo_ibge text, regiao text, status text DEFAULT 'Ativo'
+);
+
+CREATE TABLE IF NOT EXISTS regioes (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  nome text NOT NULL, descricao text, uf text, ativo boolean DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS regioes_cg (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  nome text NOT NULL, descricao text, bairros text, ativo boolean DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS agentes_campo (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  nome text NOT NULL, cpf text NOT NULL, municipio_id text, municipio_nome text,
+  regiao_cg_id text, regiao_cg_nome text, ativo boolean DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS status_familia (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  nome text NOT NULL, descricao text, cor text, ativo boolean DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS status_visita (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  nome text NOT NULL, descricao text, cor text, ativo boolean DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS status_programa (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  nome text NOT NULL, descricao text, cor text, ativo boolean DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS status_pagamento (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  nome text NOT NULL, descricao text, cor text, ativo boolean DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS status_cartao (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  nome text NOT NULL, descricao text, cor text, ativo boolean DEFAULT true
+);
+
+CREATE TABLE IF NOT EXISTS familias (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(), created_by text,
+  numero_nis text, cadastro_unico text, nome_responsavel text NOT NULL, cpf_responsavel text NOT NULL,
+  rg_numero text, data_nascimento date, genero text, estado_civil text,
+  nacionalidade text DEFAULT 'Brasileira', escolaridade text, ultima_serie text,
+  recadastro boolean DEFAULT false, telefone text, email text, situacao_ocupacao text,
+  participa_qualifica_ms boolean DEFAULT false, possui_doenca boolean DEFAULT false,
+  possui_deficiencia boolean DEFAULT false, possui_beneficio boolean DEFAULT false,
+  renda_mensal numeric, renda_per_capita numeric, renda_familiar numeric,
+  beneficios_lista jsonb, patrimonios jsonb, endereco text, cep text, bairro text,
+  regiao text, estado text DEFAULT 'Mato Grosso do Sul', municipio text,
+  situacao_moradia text, tipo_moradia text, tempo_residencia_ms text,
+  latitude numeric, longitude numeric, membros_familiares jsonb,
+  documentos_obrigatorios jsonb, documentos_especificos jsonb,
+  num_membros numeric, tipo_familia text, situacao_cadastral text, faixa_pobreza text,
+  status_beneficio text, data_cadastro date, observacoes text,
+  criterios_marcados jsonb, faixa_renda_avaliacao text, familia_unipessoal boolean,
+  pontuacao_vulnerabilidade numeric, classificacao_vulnerabilidade text,
+  prioridade_visita_sugerida text, observacoes_avaliacao text, data_avaliacao timestamptz
+);
+
+CREATE TABLE IF NOT EXISTS visitas_campo (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(), created_by text,
+  familia_id text, familia_nome text NOT NULL, tecnico_responsavel text,
+  data_agendamento date NOT NULL, data_visita date, status text, tipo_visita text,
+  prioridade_visita text DEFAULT 'Normal', pontuacao_vulnerabilidade numeric,
+  endereco text, bairro text, municipio text, regiao text,
+  latitude numeric, longitude numeric, observacoes text, resultado text,
+  validacao_familia boolean DEFAULT false, fotos jsonb,
+  status_familia_atualizado boolean DEFAULT false
+);
+
+CREATE TABLE IF NOT EXISTS programas_sociais (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  nome text NOT NULL, descricao text, tipo text, valor_beneficio numeric,
+  limite_orcamentario numeric, status text, data_inicio date, data_fim date,
+  total_vagas numeric, vagas_ocupadas numeric
+);
+
+CREATE TABLE IF NOT EXISTS contemplacoes (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(), created_by text,
+  familia_id text, familia_nome text NOT NULL, programa_id text, programa_nome text NOT NULL,
+  data_contemplacao date, valor numeric, status text DEFAULT 'Rascunho',
+  mes_referencia text, observacoes text, parecer_tecnico text, tecnico_responsavel text,
+  data_parecer timestamptz, decisao_gestor text, gestor_responsavel text,
+  data_decisao timestamptz, motivo_reprovacao text
+);
+
+CREATE TABLE IF NOT EXISTS pagamentos (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  familia_id text, familia_nome text NOT NULL, programa_nome text,
+  tipo_pagamento text, valor numeric NOT NULL, mes_referencia text,
+  data_pagamento date, status text, numero_cartao text, chave_pix text, observacoes text
+);
+
+CREATE TABLE IF NOT EXISTS cartoes (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  familia_id text, familia_nome text NOT NULL, numero_cartao text, status text,
+  data_emissao date, data_entrega date, data_vencimento date,
+  saldo numeric, tipo text, motivo_bloqueio text, observacoes text
+);
+
+CREATE TABLE IF NOT EXISTS lotes_pix (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  numero_lote text NOT NULL, data_geracao date, data_envio date, status text,
+  total_registros numeric, valor_total numeric, arquivo_retorno text, observacoes text
+);
+
+CREATE TABLE IF NOT EXISTS historico_familia (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  familia_id text NOT NULL, familia_nome text, tipo text DEFAULT 'Nota',
+  titulo text, descricao text NOT NULL, data_evento timestamptz, usuario text
+);
+
+CREATE TABLE IF NOT EXISTS atividades_recentes (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now(),
+  tipo text NOT NULL, descricao text NOT NULL, familia_nome text,
+  usuario text, data_hora timestamptz, referencia_id text
+);`;
 
 export default function ConfigSupabase() {
-  const [dados, setDados] = useState(null);
+  const [tableStatus, setTableStatus] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [erro, setErro] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [showSQL, setShowSQL] = useState(false);
 
-  const buscar = async () => {
+  const checkTables = async () => {
     setLoading(true);
-    setErro(null);
-    try {
-      const res = await base44.functions.invoke("supabaseStatus", {});
-      if (res.data?.error) throw new Error(res.data.error);
-      setDados(res.data);
-    } catch (e) {
-      setErro(e.message);
-    } finally {
-      setLoading(false);
-    }
+    const res = await base44.functions.invoke('supabaseSetup', { action: 'check_tables' });
+    setTableStatus(res.data?.tables || []);
+    setLoading(false);
   };
 
-  useEffect(() => { buscar(); }, []);
+  useEffect(() => { checkTables(); }, []);
+
+  const existing = tableStatus.filter(t => t.exists).length;
+  const missing = tableStatus.filter(t => !t.exists).length;
+  const allOk = missing === 0 && tableStatus.length > 0;
+
+  const copySQL = () => {
+    navigator.clipboard.writeText(FULL_SQL);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-emerald-500 rounded-lg flex items-center justify-center">
-            <Database size={18} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-lg font-semibold text-slate-800">Configuração Supabase</h1>
-            <p className="text-xs text-slate-500">Status e configuração dos projetos conectados</p>
-          </div>
-        </div>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={buscar}
-          disabled={loading}
-          className="gap-2"
-        >
-          <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
-          {loading ? "Verificando..." : "Atualizar"}
-        </Button>
+      <div>
+        <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+          <Database size={22} className="text-emerald-600" />
+          Integração Supabase
+        </h1>
+        <p className="text-sm text-slate-500 mt-0.5">
+          Projeto: <strong>{PROJECT_REF}</strong> · {SUPABASE_URL}
+        </p>
       </div>
 
-      {/* Token info */}
-      <div className="bg-sky-50 border border-sky-200 rounded-lg px-4 py-3 flex items-start gap-3">
-        <AlertCircle size={15} className="text-sky-600 mt-0.5 flex-shrink-0" />
-        <div className="text-xs text-sky-700">
-          <p className="font-medium mb-0.5">Personal Access Token configurado</p>
-          <p>Para alterar o token, acesse <strong>Dashboard → Settings → Environment Variables</strong> e atualize a variável <code className="bg-sky-100 px-1 rounded">SUPABASE_ACCESS_TOKEN</code>.</p>
-          <a href="https://app.supabase.com/account/tokens" target="_blank" rel="noreferrer"
-            className="inline-flex items-center gap-1 mt-1 text-sky-600 hover:text-sky-800 font-medium">
-            Gerenciar tokens no Supabase <ExternalLink size={11} />
-          </a>
-        </div>
-      </div>
-
-      {/* Erro */}
-      {erro && (
-        <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3 flex items-center gap-3">
-          <XCircle size={16} className="text-red-500 flex-shrink-0" />
-          <p className="text-sm text-red-700">{erro}</p>
-        </div>
-      )}
-
-      {/* Loading skeleton */}
-      {loading && !dados && (
-        <div className="space-y-4">
-          {[1, 2].map(i => (
-            <div key={i} className="bg-white border border-slate-200 rounded-xl p-5 animate-pulse">
-              <div className="h-4 w-48 bg-slate-200 rounded mb-3" />
-              <div className="h-3 w-32 bg-slate-100 rounded mb-4" />
-              <div className="space-y-2">
-                {[1, 2, 3].map(j => <div key={j} className="h-3 w-full bg-slate-100 rounded" />)}
-              </div>
+      {/* Status card */}
+      <div className={`rounded-xl border-2 p-5 ${allOk ? 'border-emerald-300 bg-emerald-50' : 'border-amber-300 bg-amber-50'}`}>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div className="flex items-center gap-3">
+            {allOk
+              ? <CheckCircle2 size={24} className="text-emerald-600" />
+              : <AlertTriangle size={24} className="text-amber-600" />}
+            <div>
+              <p className={`font-bold text-lg ${allOk ? 'text-emerald-700' : 'text-amber-700'}`}>
+                {allOk ? 'Supabase totalmente configurado' : `${missing} tabela(s) pendente(s) de criação`}
+              </p>
+              <p className="text-sm text-slate-600 mt-0.5">
+                {existing}/{ALL_TABLES.length} tabelas encontradas no Supabase
+              </p>
             </div>
-          ))}
+          </div>
+          <Button variant="outline" onClick={checkTables} disabled={loading} className="gap-1.5">
+            {loading ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}
+            Verificar
+          </Button>
+        </div>
+      </div>
+
+      {/* Instruções se faltar tabelas */}
+      {missing > 0 && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
+          <h2 className="font-semibold text-slate-700 flex items-center gap-2">
+            <span className="w-6 h-6 rounded-full bg-amber-100 text-amber-700 text-xs font-bold flex items-center justify-center">!</span>
+            Como criar as tabelas no Supabase
+          </h2>
+
+          <ol className="space-y-3 text-sm text-slate-600">
+            <li className="flex gap-2">
+              <span className="w-5 h-5 rounded-full bg-sky-100 text-sky-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+              <span>Acesse o <strong>SQL Editor</strong> do seu projeto Supabase</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="w-5 h-5 rounded-full bg-sky-100 text-sky-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+              <span>Copie o script SQL abaixo e cole no editor</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="w-5 h-5 rounded-full bg-sky-100 text-sky-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+              <span>Clique em <strong>Run</strong> para executar e criar todas as tabelas</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="w-5 h-5 rounded-full bg-sky-100 text-sky-700 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">4</span>
+              <span>Volte aqui e clique em <strong>Verificar</strong> para confirmar</span>
+            </li>
+          </ol>
+
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={copySQL} variant="outline" className="gap-1.5">
+              <Copy size={14} />
+              {copied ? 'Copiado!' : 'Copiar Script SQL'}
+            </Button>
+            <a href={SQL_EDITOR_URL} target="_blank" rel="noopener noreferrer">
+              <Button className="bg-emerald-600 hover:bg-emerald-700 gap-1.5">
+                <ExternalLink size={14} />
+                Abrir SQL Editor
+              </Button>
+            </a>
+          </div>
+
+          {/* SQL accordion */}
+          <div className="border border-slate-200 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setShowSQL(s => !s)}
+              className="w-full flex items-center justify-between px-4 py-3 bg-slate-50 hover:bg-slate-100 text-sm font-medium text-slate-700"
+            >
+              <span>Ver Script SQL Completo</span>
+              {showSQL ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+            </button>
+            {showSQL && (
+              <pre className="bg-slate-900 text-slate-100 text-xs p-4 overflow-x-auto max-h-96 overflow-y-auto leading-relaxed">
+                {FULL_SQL}
+              </pre>
+            )}
+          </div>
         </div>
       )}
 
-      {/* Projetos */}
-      {dados && !loading && (
-        <>
-          <p className="text-xs text-slate-500">{dados.total} projeto(s) encontrado(s)</p>
-          <div className="space-y-4">
-            {dados.projetos.map((p) => (
-              <div key={p.ref} className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
-                {/* Cabeçalho do projeto */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100">
-                  <div>
-                    <p className="font-semibold text-slate-800">{p.name}</p>
-                    <p className="text-xs text-slate-400 mt-0.5">Ref: <span className="font-mono">{p.ref}</span></p>
-                  </div>
-                  <StatusBadge status={p.status} />
+      {/* Lista de tabelas */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-100 bg-slate-50">
+          <p className="text-sm font-semibold text-slate-600">Status das Tabelas ({ALL_TABLES.length} total)</p>
+        </div>
+        <div className="divide-y divide-slate-100">
+          {ALL_TABLES.map(t => {
+            const status = tableStatus.find(s => s.table === t.key);
+            const exists = status?.exists;
+            const checking = tableStatus.length === 0 && loading;
+            return (
+              <div key={t.key} className="flex items-center justify-between px-5 py-3">
+                <div>
+                  <p className="text-sm font-medium text-slate-700">{t.label}</p>
+                  <p className="text-xs text-slate-400 font-mono">{t.key}</p>
                 </div>
-
-                <div className="px-5 py-3 grid grid-cols-1 md:grid-cols-2 gap-x-8">
-                  {/* Coluna 1 */}
-                  <div>
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Informações Gerais</p>
-                    <InfoRow label="Região" value={p.region} />
-                    <InfoRow label="Criado em" value={p.created_at ? new Date(p.created_at).toLocaleDateString("pt-BR") : null} />
-                    <InfoRow label="Org. ID" value={p.organization_id} copyable />
-                  </div>
-                  {/* Coluna 2 */}
-                  <div>
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Banco de Dados</p>
-                    <InfoRow label="Host" value={p.database.host} copyable />
-                    <InfoRow label="Porta" value={String(p.database.port)} />
-                    <InfoRow label="Versão PG" value={p.database.version} />
-                  </div>
-                </div>
-
-                {/* Anon Key */}
-                {p.anon_key && (
-                  <div className="px-5 pb-4">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Chave Pública (anon)</p>
-                    <InfoRow label="anon key" value={p.anon_key} copyable />
-                  </div>
-                )}
-
-                {/* Link externo */}
-                <div className="px-5 pb-4">
-                  <a
-                    href={`https://app.supabase.com/project/${p.ref}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-sky-600 hover:text-sky-800 font-medium"
-                  >
-                    Abrir no Supabase <ExternalLink size={11} />
-                  </a>
+                <div className="flex items-center gap-1.5">
+                  {checking ? (
+                    <Loader2 size={14} className="animate-spin text-slate-400" />
+                  ) : exists ? (
+                    <><CheckCircle2 size={16} className="text-emerald-500" /><span className="text-xs text-emerald-600 font-medium">OK</span></>
+                  ) : (
+                    <><XCircle size={16} className="text-red-400" /><span className="text-xs text-red-500 font-medium">Pendente</span></>
+                  )}
                 </div>
               </div>
-            ))}
-          </div>
-        </>
-      )}
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Info de conexão */}
+      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs text-slate-500 space-y-1">
+        <p><strong>Projeto:</strong> {PROJECT_REF}</p>
+        <p><strong>URL:</strong> {SUPABASE_URL}</p>
+        <p><strong>Região:</strong> sa-east-1 (São Paulo)</p>
+        <p className="text-emerald-600 font-medium">✓ Service Role Key configurada automaticamente via SUPABASE_ACCESS_TOKEN</p>
+      </div>
     </div>
   );
 }
