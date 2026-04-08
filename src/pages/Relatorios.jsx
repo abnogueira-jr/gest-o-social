@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { db } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { BarChart2, Download, RefreshCw, Users, MapPin, CheckCircle2, Calendar, Heart, FileText } from "lucide-react";
 import { toast } from "sonner";
@@ -46,9 +46,9 @@ export default function Relatorios() {
   const carregar = async () => {
     setLoading(true);
     const [v, c, h] = await Promise.all([
-      base44.entities.VisitaCampo.list("-data_agendamento", 1000),
-      base44.entities.Contemplacao.list("-data_contemplacao", 1000),
-      base44.entities.HistoricoFamilia.list("-data_evento", 1000),
+      db.VisitaCampo.list("-data_agendamento", 1000),
+      db.Contemplacao.list("-data_contemplacao", 1000),
+      db.HistoricoFamilia.list("-data_evento", 1000),
     ]);
     setVisitas(v);
     setContemplacoes(c);

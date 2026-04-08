@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { db } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Plus, Users, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
@@ -21,7 +21,7 @@ export default function FamiliasCadastro() {
 
   const carregar = async () => {
     setLoading(true);
-    const data = await base44.entities.Familia.list("-created_date", 500);
+    const data = await db.Familia.list("-created_date", 500);
     setFamilias(data);
     setLoading(false);
   };
@@ -51,10 +51,10 @@ export default function FamiliasCadastro() {
     if (dados.renda_familiar) dados.renda_familiar = Number(dados.renda_familiar);
 
     if (familiaEditando) {
-      await base44.entities.Familia.update(familiaEditando.id, dados);
+      await db.Familia.update(familiaEditando.id, dados);
       toast.success("Família atualizada com sucesso!");
     } else {
-      await base44.entities.Familia.create(dados);
+      await db.Familia.create(dados);
       toast.success("Família cadastrada com sucesso!");
     }
     setModalAberto(false);
@@ -69,7 +69,7 @@ export default function FamiliasCadastro() {
 
   const handleExcluir = async (f) => {
     if (confirmExcluir?.id === f.id) {
-      await base44.entities.Familia.delete(f.id);
+      await db.Familia.delete(f.id);
       toast.success("Família excluída.");
       setConfirmExcluir(null);
       carregar();

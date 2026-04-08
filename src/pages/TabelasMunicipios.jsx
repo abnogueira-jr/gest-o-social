@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { db } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +24,7 @@ export default function TabelasMunicipios() {
 
   const carregar = async () => {
     setLoading(true);
-    const data = await base44.entities.Municipio.list("-nome", 500);
+    const data = await db.Municipio.list("-nome", 500);
     setMunicipios(data);
     setLoading(false);
   };
@@ -56,10 +56,10 @@ export default function TabelasMunicipios() {
     }
     setSalvando(true);
     if (editandoId) {
-      await base44.entities.Municipio.update(editandoId, form);
+      await db.Municipio.update(editandoId, form);
       toast.success("Município atualizado.");
     } else {
-      await base44.entities.Municipio.create(form);
+      await db.Municipio.create(form);
       toast.success("Município cadastrado.");
     }
     setSalvando(false);
@@ -68,7 +68,7 @@ export default function TabelasMunicipios() {
   };
 
   const excluir = async (id) => {
-    await base44.entities.Municipio.delete(id);
+    await db.Municipio.delete(id);
     toast.success("Município excluído.");
     setConfirmDelete(null);
     carregar();

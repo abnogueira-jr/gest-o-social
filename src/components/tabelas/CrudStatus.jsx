@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { db } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,7 +24,7 @@ export default function CrudStatus({ titulo, entityName, icone: Icone }) {
   const [salvando, setSalvando] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(null);
 
-  const entity = base44.entities[entityName];
+  const entity = db[entityName];
 
   const carregar = async () => {
     setLoading(true);

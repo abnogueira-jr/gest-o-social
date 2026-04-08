@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { db } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Pencil, Search, UserCheck, UserX, Smartphone } from "lucide-react";
@@ -75,9 +75,9 @@ function AgentModal({ open, onClose, agente, municipios, regioesCG, onSalvo }) {
     if (!validar()) return;
     setSalvando(true);
     if (agente?.id) {
-      await base44.entities.AgenteCampo.update(agente.id, form);
+      await db.AgenteCampo.update(agente.id, form);
     } else {
-      await base44.entities.AgenteCampo.create(form);
+      await db.AgenteCampo.create(form);
     }
     setSalvando(false);
     onSalvo();
@@ -187,9 +187,9 @@ export default function ConfigAgentesCampo() {
   const carregar = async () => {
     setLoading(true);
     const [a, m, r] = await Promise.all([
-      base44.entities.AgenteCampo.list("-created_date"),
-      base44.entities.Municipio.filter({ status: "Ativo" }, "nome"),
-      base44.entities.RegiaoCG.filter({ ativo: true }, "nome"),
+      db.AgenteCampo.list("-created_date"),
+      db.Municipio.filter({ status: "Ativo" }, "nome"),
+      db.RegiaoCG.filter({ ativo: true }, "nome"),
     ]);
     setAgentes(a);
     setMunicipios(m);
@@ -200,7 +200,7 @@ export default function ConfigAgentesCampo() {
   useEffect(() => { carregar(); }, []);
 
   const handleToggleAtivo = async (agente) => {
-    await base44.entities.AgenteCampo.update(agente.id, { ativo: !agente.ativo });
+    await db.AgenteCampo.update(agente.id, { ativo: !agente.ativo });
     carregar();
   };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { db } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, FilterX, Users, ShieldAlert, Calendar, FileDown } from "lucide-react";
@@ -15,7 +15,7 @@ export default function FamiliasBuscaAtiva() {
   const [editando, setEditando] = useState(null);
 
   useEffect(() => {
-    base44.entities.Familia.list("-created_date", 1000)
+    db.Familia.list("-created_date", 1000)
       .then(data => { setFamilias(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
@@ -28,7 +28,7 @@ export default function FamiliasBuscaAtiva() {
 
   const handleSalvarEdicao = async (dados) => {
     if (editando?.id) {
-      await base44.entities.Familia.update(editando.id, dados);
+      await db.Familia.update(editando.id, dados);
       setFamilias(prev => prev.map(f => f.id === editando.id ? { ...f, ...dados } : f));
     }
     setEditando(null);

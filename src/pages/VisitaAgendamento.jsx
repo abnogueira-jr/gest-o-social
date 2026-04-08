@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { base44 } from "@/api/base44Client";
+import { db } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Plus, RefreshCw, CalendarDays, List, Clock, CheckCircle2, AlertTriangle, Map } from "lucide-react";
@@ -33,7 +33,7 @@ export default function VisitaAgendamento() {
 
   const carregar = async () => {
     setLoading(true);
-    const data = await base44.entities.VisitaCampo.list("-data_agendamento", 500);
+    const data = await db.VisitaCampo.list("-data_agendamento", 500);
     setVisitas(data);
     setLoading(false);
   };
@@ -42,10 +42,10 @@ export default function VisitaAgendamento() {
 
   const handleSalvar = async (form) => {
     if (form.id) {
-      await base44.entities.VisitaCampo.update(form.id, form);
+      await db.VisitaCampo.update(form.id, form);
       toast.success("Agendamento atualizado!");
     } else {
-      await base44.entities.VisitaCampo.create(form);
+      await db.VisitaCampo.create(form);
       toast.success("Visita agendada com sucesso!");
     }
     carregar();
@@ -53,7 +53,7 @@ export default function VisitaAgendamento() {
 
   const handleExcluir = async (id) => {
     if (!window.confirm("Deseja excluir este agendamento?")) return;
-    await base44.entities.VisitaCampo.delete(id);
+    await db.VisitaCampo.delete(id);
     toast.success("Agendamento removido.");
     carregar();
   };

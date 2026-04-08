@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
+import { db } from "@/lib/supabaseClient";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Heart, DollarSign, TrendingUp, Power, PowerOff } from "lucide-react";
 import ProgramaModal from "@/components/programas/ProgramaModal";
@@ -69,7 +69,7 @@ export default function ProgramasCadastro() {
 
   const load = async () => {
     setLoading(true);
-    const data = await base44.entities.ProgramaSocial.list("-created_date");
+    const data = await db.ProgramaSocial.list("-created_date");
     setProgramas(data);
     setLoading(false);
   };
@@ -78,9 +78,9 @@ export default function ProgramasCadastro() {
 
   const handleSave = async (form) => {
     if (editing) {
-      await base44.entities.ProgramaSocial.update(editing.id, form);
+      await db.ProgramaSocial.update(editing.id, form);
     } else {
-      await base44.entities.ProgramaSocial.create(form);
+      await db.ProgramaSocial.create(form);
     }
     setModalOpen(false);
     setEditing(null);
@@ -91,7 +91,7 @@ export default function ProgramasCadastro() {
 
   const handleToggleStatus = async (p) => {
     const novoStatus = p.status === "Ativo" ? "Inativo" : "Ativo";
-    await base44.entities.ProgramaSocial.update(p.id, { ...p, status: novoStatus });
+    await db.ProgramaSocial.update(p.id, { ...p, status: novoStatus });
     load();
   };
 
