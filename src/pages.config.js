@@ -62,6 +62,7 @@ import TabelasRegioes from './pages/TabelasRegioes';
 import TabelasRegioesCG from './pages/TabelasRegioesCG';
 import ConfigSupabase from './pages/ConfigSupabase';
 import ProgramasCadastro from './pages/ProgramasCadastro';
+import FamiliasBuscaAtiva from './pages/FamiliasBuscaAtiva';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +82,7 @@ export const PAGES = {
     "TabelasRegioesCG": TabelasRegioesCG,
     "ConfigSupabase": ConfigSupabase,
     "ProgramasCadastro": ProgramasCadastro,
+    "FamiliasBuscaAtiva": FamiliasBuscaAtiva,
 }
 
 export const pagesConfig = {
