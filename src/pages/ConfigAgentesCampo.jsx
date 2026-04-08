@@ -53,7 +53,15 @@ function AgentModal({ open, onClose, agente, municipios, regioesCG, onSalvo }) {
   const handleMunicipio = (e) => {
     const id = e.target.value;
     const mun = municipios.find(m => m.id === id);
-    setForm(f => ({ ...f, municipio_id: id, municipio_nome: mun?.nome || "" }));
+    const ehCampoGrande = mun?.nome?.toLowerCase().includes("campo grande");
+    // limpa região se não for Campo Grande
+    setForm(f => ({
+      ...f,
+      municipio_id: id,
+      municipio_nome: mun?.nome || "",
+      regiao_cg_id: ehCampoGrande ? f.regiao_cg_id : "",
+      regiao_cg_nome: ehCampoGrande ? f.regiao_cg_nome : "",
+    }));
   };
 
   const handleRegiao = (e) => {
@@ -62,11 +70,14 @@ function AgentModal({ open, onClose, agente, municipios, regioesCG, onSalvo }) {
     setForm(f => ({ ...f, regiao_cg_id: id, regiao_cg_nome: reg?.nome || "" }));
   };
 
+  const isCampoGrande = municipios.find(m => m.id === form.municipio_id)?.nome?.toLowerCase().includes("campo grande");
+
   const validar = () => {
     const novos = {};
     if (!form.nome.trim()) novos.nome = "Nome obrigatório";
     if (!form.cpf.trim()) novos.cpf = "CPF obrigatório";
     else if (!validarCPF(form.cpf)) novos.cpf = "CPF inválido";
+    if (!form.municipio_id) novos.municipio_id = "Município obrigatório";
     setErros(novos);
     return Object.keys(novos).length === 0;
   };
@@ -120,33 +131,36 @@ function AgentModal({ open, onClose, agente, municipios, regioesCG, onSalvo }) {
 
           {/* Município */}
           <div>
-            <label className="text-xs font-medium text-slate-600 mb-1 block">Município atendido</label>
+            <label className="text-xs font-medium text-slate-600 mb-1 block">Município atendido *</label>
             <select
               value={form.municipio_id}
               onChange={handleMunicipio}
-              className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-sky-500"
+              className={`w-full border rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-sky-500 ${erros.municipio_id ? "border-red-400" : "border-slate-200"}`}
             >
               <option value="">Selecione o município</option>
               {municipios.map(m => (
                 <option key={m.id} value={m.id}>{m.nome} — {m.uf}</option>
               ))}
             </select>
+            {erros.municipio_id && <p className="text-xs text-red-500 mt-1">{erros.municipio_id}</p>}
           </div>
 
-          {/* Região CG */}
-          <div>
-            <label className="text-xs font-medium text-slate-600 mb-1 block">Região de Campo Grande atendida</label>
-            <select
-              value={form.regiao_cg_id}
-              onChange={handleRegiao}
-              className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-sky-500"
-            >
-              <option value="">Selecione a região</option>
-              {regioesCG.map(r => (
-                <option key={r.id} value={r.id}>{r.nome}</option>
-              ))}
-            </select>
-          </div>
+          {/* Região CG — só exibe se o município for Campo Grande */}
+          {isCampoGrande && (
+            <div>
+              <label className="text-xs font-medium text-slate-600 mb-1 block">Região de Campo Grande atendida</label>
+              <select
+                value={form.regiao_cg_id}
+                onChange={handleRegiao}
+                className="w-full border border-slate-200 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-sky-500"
+              >
+                <option value="">Selecione a região</option>
+                {regioesCG.map(r => (
+                  <option key={r.id} value={r.id}>{r.nome}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Ativo */}
           <div className="flex items-center gap-3">
