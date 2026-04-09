@@ -4,7 +4,7 @@ import { createPageUrl } from "@/utils";
 import {
   LayoutDashboard, Users, MapPin, Heart, CreditCard, Zap,
   BarChart2, Table2, Settings, ChevronDown, ChevronRight,
-  Menu, X, Bell, Search, User, LogOut
+  Menu, X, Bell, Search, User, LogOut, Shield
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
@@ -96,6 +96,11 @@ const menuItems = [
     label: "Dicionário de Dados",
     icon: Table2,
     page: "DicionarioDados"
+  },
+  {
+    label: "Auditoria",
+    icon: Shield,
+    page: "AuditoriaLog"
   },
   {
     label: "Configurações",

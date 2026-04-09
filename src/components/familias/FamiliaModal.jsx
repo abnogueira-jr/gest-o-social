@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { MapPin, Navigation, Loader2, ChevronRight, ChevronLeft, User, Briefcase, Building2, FileText, Home, Users, Plus, Trash2, Check } from "lucide-react";
+import { registrarAuditoria } from "@/utils/auditoria";
 
 const regioes = ["Bolsão", "Central", "Cone Sul", "Grande Dourados", "Leste", "Norte", "Pantanal", "Sudoeste", "Sul Fronteira"];
 const municipiosMS = ["Água Clara", "Aquidauana", "Bonito", "Campo Grande", "Corumbá", "Coxim", "Dourados", "Jardim", "Maracaju", "Naviraí", "Nova Andradina", "Paranaíba", "Ponta Porã", "Sidrolândia", "Três Lagoas"];
@@ -615,9 +616,21 @@ export default function FamiliaModal({ open, familia, onClose, onSave }) {
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleSave = async () => {
-    if (!form.nome_responsavel || !form.cpf_responsavel) { setStep(2); return; }
+    if (!form.nome_responsavel || !form.cpf_responsavel) { setStep(1); return; }
     setSaving(true);
     await onSave(form);
+    await registrarAuditoria({
+      acao: familia ? "Edição" : "Criação",
+      modulo: "Famílias",
+      entidade: "Familia",
+      entidade_id: familia?.id || "",
+      entidade_descricao: form.nome_responsavel,
+      detalhes: familia
+        ? `Edição do cadastro de ${form.nome_responsavel} (CPF: ${form.cpf_responsavel})`
+        : `Novo cadastro de ${form.nome_responsavel} (CPF: ${form.cpf_responsavel})`,
+      dados_anteriores: familia ? familia : undefined,
+      dados_novos: form,
+    });
     setSaving(false);
   };
 

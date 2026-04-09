@@ -1,0 +1,78 @@
+{
+  "name": "AuditoriaLog",
+  "type": "object",
+  "properties": {
+    "usuario_email": {
+      "type": "string",
+      "description": "Email do usu\u00e1rio que realizou a a\u00e7\u00e3o"
+    },
+    "usuario_nome": {
+      "type": "string",
+      "description": "Nome do usu\u00e1rio"
+    },
+    "acao": {
+      "type": "string",
+      "enum": [
+        "Cria\u00e7\u00e3o",
+        "Edi\u00e7\u00e3o",
+        "Exclus\u00e3o",
+        "Visualiza\u00e7\u00e3o",
+        "Login",
+        "Exporta\u00e7\u00e3o",
+        "Altera\u00e7\u00e3o de Status"
+      ],
+      "description": "Tipo de a\u00e7\u00e3o realizada"
+    },
+    "modulo": {
+      "type": "string",
+      "enum": [
+        "Fam\u00edlias",
+        "Visitas",
+        "Programas Sociais",
+        "Benef\u00edcios",
+        "Cart\u00f5es",
+        "PIX",
+        "Contempla\u00e7\u00f5es",
+        "Relat\u00f3rios",
+        "Configura\u00e7\u00f5es",
+        "Sistema"
+      ],
+      "description": "M\u00f3dulo do sistema"
+    },
+    "entidade": {
+      "type": "string",
+      "description": "Nome da entidade afetada (ex: Familia, VisitaCampo)"
+    },
+    "entidade_id": {
+      "type": "string",
+      "description": "ID do registro afetado"
+    },
+    "entidade_descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o resumida do registro (ex: nome da fam\u00edlia)"
+    },
+    "detalhes": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o detalhada da altera\u00e7\u00e3o realizada"
+    },
+    "dados_anteriores": {
+      "type": "string",
+      "description": "JSON dos dados antes da altera\u00e7\u00e3o"
+    },
+    "dados_novos": {
+      "type": "string",
+      "description": "JSON dos dados ap\u00f3s a altera\u00e7\u00e3o"
+    },
+    "ip_address": {
+      "type": "string"
+    },
+    "data_hora": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "acao",
+    "modulo"
+  ]
+}

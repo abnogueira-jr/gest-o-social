@@ -71,6 +71,7 @@ import VisitaRegistro from './pages/VisitaRegistro';
 import ProgramasAlteracaoBeneficio from './pages/ProgramasAlteracaoBeneficio';
 import ProgramasHistorico from './pages/ProgramasHistorico';
 import RelatorioAlteracaoBeneficio from './pages/RelatorioAlteracaoBeneficio';
+import AuditoriaLog from './pages/AuditoriaLog';
 import __Layout from './Layout.jsx';
 
 
@@ -99,6 +100,7 @@ export const PAGES = {
     "ProgramasAlteracaoBeneficio": ProgramasAlteracaoBeneficio,
     "ProgramasHistorico": ProgramasHistorico,
     "RelatorioAlteracaoBeneficio": RelatorioAlteracaoBeneficio,
+    "AuditoriaLog": AuditoriaLog,
 }
 
 export const pagesConfig = {
