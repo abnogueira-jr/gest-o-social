@@ -40,6 +40,7 @@ const menuItems = [
       { label: "Contemplações", page: "ProgramasContemplacoes" },
       { label: "Monitoramento do Beneficiário", page: "ProgramasAlteracaoBeneficio" },
       { label: "Histórico do Beneficiário", page: "ProgramasHistorico" },
+      { label: "Relatório de Alterações", page: "RelatorioAlteracaoBeneficio" },
       { label: "Importar Dados Federais", page: "ProgramasImportar" }
     ]
   },

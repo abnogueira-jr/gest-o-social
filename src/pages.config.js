@@ -70,6 +70,7 @@ import FamiliasAvaliacaoVulnerabilidade from './pages/FamiliasAvaliacaoVulnerabi
 import VisitaRegistro from './pages/VisitaRegistro';
 import ProgramasAlteracaoBeneficio from './pages/ProgramasAlteracaoBeneficio';
 import ProgramasHistorico from './pages/ProgramasHistorico';
+import RelatorioAlteracaoBeneficio from './pages/RelatorioAlteracaoBeneficio';
 import __Layout from './Layout.jsx';
 
 
@@ -97,6 +98,7 @@ export const PAGES = {
     "VisitaRegistro": VisitaRegistro,
     "ProgramasAlteracaoBeneficio": ProgramasAlteracaoBeneficio,
     "ProgramasHistorico": ProgramasHistorico,
+    "RelatorioAlteracaoBeneficio": RelatorioAlteracaoBeneficio,
 }
 
 export const pagesConfig = {
