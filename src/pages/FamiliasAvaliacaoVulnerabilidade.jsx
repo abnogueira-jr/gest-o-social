@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { db } from "@/lib/supabaseClient";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -69,7 +69,7 @@ export default function FamiliasAvaliacaoVulnerabilidade() {
   const [gruposAbertos, setGruposAbertos] = useState({});
 
   useEffect(() => {
-    db.Familia.list("-created_date", 500)
+    base44.entities.Familia.list("-created_date", 500)
       .then(data => { setFamilias(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
@@ -122,7 +122,7 @@ export default function FamiliasAvaliacaoVulnerabilidade() {
       observacoes_avaliacao: observacoes,
       data_avaliacao: new Date().toISOString(),
     };
-    await db.Familia.update(familiaSel.id, payload);
+    await base44.entities.Familia.update(familiaSel.id, payload);
     setSalvando(false);
     setSalvoOk(true);
     setFamilias(prev => prev.map(f => f.id === familiaSel.id ? { ...f, ...payload } : f));

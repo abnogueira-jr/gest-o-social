@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { db } from "@/lib/supabaseClient";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Heart, RefreshCw, FileText, ShieldCheck, Clock, CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
@@ -35,7 +35,7 @@ export default function ProgramasContemplacoes() {
 
   const carregar = async () => {
     setLoading(true);
-    const data = await db.Contemplacao.list("-created_date", 500);
+    const data = await base44.entities.Contemplacao.list("-created_date", 500);
     setContemplacoes(data);
     setLoading(false);
   };
@@ -54,13 +54,13 @@ export default function ProgramasContemplacoes() {
   });
 
   const handleSalvarParecer = async (id, dados) => {
-    await db.Contemplacao.update(id, dados);
+    await base44.entities.Contemplacao.update(id, dados);
     toast.success("Parecer registrado! Status atualizado para Pendente Aprovação.");
     carregar();
   };
 
   const handleSalvarDecisao = async (id, dados) => {
-    await db.Contemplacao.update(id, dados);
+    await base44.entities.Contemplacao.update(id, dados);
     toast.success(dados.status === "Aprovado" ? "Contemplação aprovada!" : "Contemplação reprovada.");
     carregar();
   };

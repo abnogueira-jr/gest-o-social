@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { db } from "@/lib/supabaseClient";
+import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import {
   ShieldAlert, FilterX, Calendar, Users, CheckSquare,
@@ -69,7 +69,7 @@ export default function AgendamentoLote({ open, onClose, onSalvo, familiasPre = 
     if (!open) return;
     setBusca(""); setFiltroFaixa("");
     setLoadingFamilias(true);
-    db.Familia.list("-created_date", 1000)
+    base44.entities.Familia.list("-created_date", 1000)
       .then(data => {
         const comPontuacao = data
           .map(f => ({ ...f, _pontuacao: calcularPontuacao(f), _prioridade: prioridadePorPontuacao(calcularPontuacao(f)) }))
@@ -151,7 +151,7 @@ export default function AgendamentoLote({ open, onClose, onSalvo, familiasPre = 
         municipio: familia.municipio || "",
         observacoes: observacoes || `Gerado automaticamente pela Busca Ativa. Pontuação: ${familia._pontuacao}`,
       }));
-      await db.VisitaCampo.bulkCreate(registros);
+      await base44.entities.VisitaCampo.bulkCreate(registros);
       toast.success(`${registros.length} visitas agendadas com sucesso!`);
       onSalvo();
     } catch (e) {

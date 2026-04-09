@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { db } from "@/lib/supabaseClient";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import {
@@ -48,7 +48,7 @@ export default function AgendaBuscaAtiva() {
 
   const carregar = async () => {
     setLoading(true);
-    const data = await db.VisitaCampo.list("-data_agendamento", 500);
+    const data = await base44.entities.VisitaCampo.list("-data_agendamento", 500);
     // Filtra apenas visitas originadas da Busca Ativa (tipo Busca Ativa)
     setVisitas(data.filter(v => v.tipo_visita === "Busca Ativa"));
     setLoading(false);
@@ -99,7 +99,7 @@ export default function AgendaBuscaAtiva() {
   const meses = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 
   const handleStatusChange = async (visita, novoStatus) => {
-    await db.VisitaCampo.update(visita.id, { status: novoStatus });
+    await base44.entities.VisitaCampo.update(visita.id, { status: novoStatus });
     toast.success("Status atualizado!");
     carregar();
   };

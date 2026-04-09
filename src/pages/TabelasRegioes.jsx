@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { db } from "@/lib/supabaseClient";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,7 +21,7 @@ export default function TabelasRegioes() {
 
   const carregar = async () => {
     setLoading(true);
-    const data = await db.Regiao.list("nome", 200);
+    const data = await base44.entities.Regiao.list("nome", 200);
     setItens(data);
     setLoading(false);
   };
@@ -45,10 +45,10 @@ export default function TabelasRegioes() {
     if (!form.nome.trim()) { toast.error("Nome é obrigatório."); return; }
     setSalvando(true);
     if (editandoId) {
-      await db.Regiao.update(editandoId, form);
+      await base44.entities.Regiao.update(editandoId, form);
       toast.success("Região atualizada.");
     } else {
-      await db.Regiao.create(form);
+      await base44.entities.Regiao.create(form);
       toast.success("Região cadastrada.");
     }
     setSalvando(false);
@@ -57,7 +57,7 @@ export default function TabelasRegioes() {
   };
 
   const excluir = async (id) => {
-    await db.Regiao.delete(id);
+    await base44.entities.Regiao.delete(id);
     toast.success("Região excluída.");
     setConfirmDelete(null);
     carregar();

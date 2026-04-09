@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { db } from "@/lib/supabaseClient";
+import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -67,17 +67,17 @@ export default function FamiliaHistorico({ familia }) {
     setLoading(true);
     try {
       // Busca notas/atendimentos manuais
-      const manuais = await db.HistoricoFamilia.filter(
+      const manuais = await base44.entities.HistoricoFamilia.filter(
         { familia_id: familia.id }, "-data_evento", 100
       );
 
       // Busca visitas de campo
-      const visitas = await db.VisitaCampo.filter(
+      const visitas = await base44.entities.VisitaCampo.filter(
         { familia_id: familia.id }, "-data_agendamento", 100
       );
 
       // Busca contemplações (benefícios)
-      const contemplacoes = await db.Contemplacao.filter(
+      const contemplacoes = await base44.entities.Contemplacao.filter(
         { familia_id: familia.id }, "-data_contemplacao", 100
       );
 
@@ -112,7 +112,7 @@ export default function FamiliaHistorico({ familia }) {
   const handleSalvar = async () => {
     if (!nota.descricao.trim()) return;
     setSaving(true);
-    await db.HistoricoFamilia.create({
+    await base44.entities.HistoricoFamilia.create({
       familia_id: familia.id,
       familia_nome: familia.nome_responsavel,
       tipo: nota.tipo,
