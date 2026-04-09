@@ -3,7 +3,8 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Search, Edit, History, Loader2, X } from "lucide-react";
+import { Plus, Search, Edit, History, Loader2, GitBranch } from "lucide-react";
+import TimelineBeneficiario from "@/components/beneficio/TimelineBeneficiario";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -200,6 +201,9 @@ export default function ProgramasAlteracaoBeneficio() {
   const [busca, setBusca] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selecionado, setSelecionado] = useState(null);
+  const [timelineOpen, setTimelineOpen] = useState(false);
+  const [timelineCpf, setTimelineCpf] = useState("");
+  const [timelineNome, setTimelineNome] = useState("");
 
   const carregar = async () => {
     setLoading(true);
@@ -216,6 +220,7 @@ export default function ProgramasAlteracaoBeneficio() {
   );
 
   const abrirNovo = () => { setSelecionado(null); setModalOpen(true); };
+  const abrirTimeline = (r) => { setTimelineCpf(r.cpf_beneficiario); setTimelineNome(r.nome_beneficiario); setTimelineOpen(true); };
   const abrirEditar = (r) => { setSelecionado(r); setModalOpen(true); };
   const fecharModal = () => { setModalOpen(false); setSelecionado(null); };
   const aoSalvar = () => { fecharModal(); carregar(); };
@@ -258,7 +263,7 @@ export default function ProgramasAlteracaoBeneficio() {
               <th className="text-left px-4 py-3 font-semibold text-slate-600">Motivo</th>
               <th className="text-left px-4 py-3 font-semibold text-slate-600">Data/Hora</th>
               <th className="text-left px-4 py-3 font-semibold text-slate-600">Usuário</th>
-              <th className="px-4 py-3"></th>
+              <th className="px-4 py-3 text-left font-semibold text-slate-600">Ações</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -287,9 +292,12 @@ export default function ProgramasAlteracaoBeneficio() {
                   {r.data_hora_alteracao ? format(new Date(r.data_hora_alteracao), "dd/MM/yyyy HH:mm", { locale: ptBR }) : "—"}
                 </td>
                 <td className="px-4 py-3 text-slate-500">{r.usuario_responsavel}</td>
-                <td className="px-4 py-3">
-                  <Button variant="ghost" size="icon" onClick={() => abrirEditar(r)}>
+                <td className="px-4 py-3 flex items-center gap-1">
+                  <Button variant="ghost" size="icon" title="Editar" onClick={() => abrirEditar(r)}>
                     <Edit size={14} />
+                  </Button>
+                  <Button variant="ghost" size="icon" title="Ver Timeline" onClick={() => abrirTimeline(r)}>
+                    <GitBranch size={14} className="text-sky-600" />
                   </Button>
                 </td>
               </tr>
@@ -303,6 +311,12 @@ export default function ProgramasAlteracaoBeneficio() {
         onClose={fecharModal}
         onSaved={aoSalvar}
         registro={selecionado}
+      />
+      <TimelineBeneficiario
+        open={timelineOpen}
+        onClose={() => setTimelineOpen(false)}
+        cpf={timelineCpf}
+        nome={timelineNome}
       />
     </div>
   );
