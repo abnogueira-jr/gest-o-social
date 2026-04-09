@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { FileText, Download, Search, Loader2, Filter, X, FileSpreadsheet } from "lucide-react";
+import { FileText, Download, Search, Loader2, Filter, X, FileSpreadsheet, BarChart2 } from "lucide-react";
+import GraficosAlteracaoBeneficio from "@/components/relatorios/GraficosAlteracaoBeneficio";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import jsPDF from "jspdf";
@@ -197,6 +198,11 @@ export default function RelatorioAlteracaoBeneficio() {
         <KpiCard label="Em Análise" value={kpis["Em Análise"] || 0} color="border-blue-400" />
         <KpiCard label="Aguardando" value={kpis["Aguardando"] || 0} color="border-slate-400" />
       </div>
+
+      {/* Gráficos */}
+      {!loading && filtrados.length > 0 && (
+        <GraficosAlteracaoBeneficio dados={filtrados} />
+      )}
 
       {/* Filtros */}
       <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm space-y-3">

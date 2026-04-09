@@ -7,6 +7,7 @@ import GraficosPorRenda from "@/components/dashboard/GraficosPorenda";
 import AtividadesRecentes from "@/components/dashboard/AtividadesRecentes";
 import MapaDistribuicao from "@/components/dashboard/MapaDistribuicao";
 import MapaFamilias from "@/components/dashboard/MapaFamilias";
+import GraficosAlteracoes from "@/components/dashboard/GraficosAlteracoes";
 
 export default function Dashboard() {
   const hoje = new Date().toLocaleDateString("pt-BR", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
@@ -36,6 +37,9 @@ export default function Dashboard() {
 
       {/* Barras sem programa + Pizza com programa */}
       <GraficosPorRenda />
+
+      {/* Gráficos Alterações de Benefício */}
+      <GraficosAlteracoes />
 
       {/* Mapa MS */}
       <MapaFamilias />
