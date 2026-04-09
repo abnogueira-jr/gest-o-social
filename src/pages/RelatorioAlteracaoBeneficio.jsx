@@ -35,6 +35,7 @@ function KpiCard({ label, value, color }) {
 export default function RelatorioAlteracaoBeneficio() {
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [filtroGrafico, setFiltroGrafico] = useState(null);
 
   const [filtros, setFiltros] = useState({
     dataInicio: "", dataFim: "", status: "", motivo: "", usuario: "", busca: ""
@@ -72,6 +73,22 @@ export default function RelatorioAlteracaoBeneficio() {
       return true;
     });
   }, [todos, filtros]);
+
+  // Dados filtrados pelo gráfico (aplicado sobre filtrados)
+  const dadosGrafico = useMemo(() => {
+    if (!filtroGrafico) return filtrados;
+    return filtrados.filter(r => {
+      if (filtroGrafico.tipo === "status") return r.status_novo === filtroGrafico.valor;
+      if (filtroGrafico.tipo === "motivo") return r.motivo_alteracao === filtroGrafico.valor;
+      if (filtroGrafico.tipo === "mes") {
+        if (!r.data_hora_alteracao) return false;
+        const d = new Date(r.data_hora_alteracao);
+        const key = `${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+        return key === filtroGrafico.valor;
+      }
+      return true;
+    });
+  }, [filtrados, filtroGrafico]);
 
   // KPIs
   const kpis = useMemo(() => {
@@ -177,7 +194,7 @@ export default function RelatorioAlteracaoBeneficio() {
             Relatório de Alterações de Benefício
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">
-            {filtrados.length} registro(s) encontrado(s)
+            {dadosGrafico.length} registro(s) encontrado(s){filtroGrafico ? " (filtro por gráfico ativo)" : ""}
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -201,7 +218,11 @@ export default function RelatorioAlteracaoBeneficio() {
 
       {/* Gráficos */}
       {!loading && filtrados.length > 0 && (
-        <GraficosAlteracaoBeneficio dados={filtrados} />
+        <GraficosAlteracaoBeneficio
+          dados={filtrados}
+          filtroAtivo={filtroGrafico}
+          onFiltroChange={(f) => setFiltroGrafico(f)}
+        />
       )}
 
       {/* Filtros */}
@@ -271,9 +292,9 @@ export default function RelatorioAlteracaoBeneficio() {
           <tbody className="divide-y divide-slate-100">
             {loading ? (
               <tr><td colSpan={8} className="text-center py-10 text-slate-400"><Loader2 size={20} className="animate-spin inline" /></td></tr>
-            ) : filtrados.length === 0 ? (
+            ) : dadosGrafico.length === 0 ? (
               <tr><td colSpan={8} className="text-center py-10 text-slate-400">Nenhum registro encontrado</td></tr>
-            ) : filtrados.map(r => (
+            ) : dadosGrafico.map(r => (
               <tr key={r.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3 font-medium text-slate-800">{r.nome_beneficiario}</td>
                 <td className="px-4 py-3 text-slate-500">{r.cpf_beneficiario}</td>
