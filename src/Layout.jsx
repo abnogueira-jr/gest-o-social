@@ -29,8 +29,7 @@ const menuItems = [
     children: [
       { label: "Agendamento", page: "VisitaAgendamento" },
       { label: "Registro de Visitas", page: "VisitaRegistro" },
-      { label: "Avaliação de Vulnerabilidade", page: "FamiliasAvaliacaoVulnerabilidade" },
-      { label: "Validação de Família", page: "VisitaValidacao" }
+      { label: "Avaliação de Vulnerabilidade", page: "FamiliasAvaliacaoVulnerabilidade" }
     ]
   },
   {
