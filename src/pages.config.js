@@ -68,6 +68,7 @@ import DicionarioDados from './pages/DicionarioDados';
 import ConfigAgentesCampo from './pages/ConfigAgentesCampo';
 import FamiliasAvaliacaoVulnerabilidade from './pages/FamiliasAvaliacaoVulnerabilidade';
 import VisitaRegistro from './pages/VisitaRegistro';
+import ProgramasAlteracaoBeneficio from './pages/ProgramasAlteracaoBeneficio';
 import __Layout from './Layout.jsx';
 
 
@@ -93,6 +94,7 @@ export const PAGES = {
     "ConfigAgentesCampo": ConfigAgentesCampo,
     "FamiliasAvaliacaoVulnerabilidade": FamiliasAvaliacaoVulnerabilidade,
     "VisitaRegistro": VisitaRegistro,
+    "ProgramasAlteracaoBeneficio": ProgramasAlteracaoBeneficio,
 }
 
 export const pagesConfig = {

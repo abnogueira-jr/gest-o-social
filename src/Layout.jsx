@@ -38,6 +38,7 @@ const menuItems = [
     children: [
       { label: "Cadastro", page: "ProgramasCadastro" },
       { label: "Contemplações", page: "ProgramasContemplacoes" },
+      { label: "Alteração de Situação do Benefício", page: "ProgramasAlteracaoBeneficio" },
       { label: "Monitoramento", page: "ProgramasMonitoramento" },
       { label: "Histórico do Beneficiário", page: "ProgramasHistorico" },
       { label: "Importar Dados Federais", page: "ProgramasImportar" }

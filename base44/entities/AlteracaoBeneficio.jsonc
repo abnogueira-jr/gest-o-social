@@ -1,0 +1,72 @@
+{
+  "name": "AlteracaoBeneficio",
+  "type": "object",
+  "properties": {
+    "familia_id": {
+      "type": "string"
+    },
+    "cpf_beneficiario": {
+      "type": "string",
+      "description": "CPF do benefici\u00e1rio"
+    },
+    "nome_beneficiario": {
+      "type": "string",
+      "description": "Nome do benefici\u00e1rio"
+    },
+    "numero_cartao": {
+      "type": "string",
+      "description": "N\u00ba do cart\u00e3o"
+    },
+    "programa_id": {
+      "type": "string"
+    },
+    "programa_nome": {
+      "type": "string"
+    },
+    "status_anterior": {
+      "type": "string",
+      "description": "Status atual antes da altera\u00e7\u00e3o"
+    },
+    "status_novo": {
+      "type": "string",
+      "enum": [
+        "Ativo",
+        "Suspenso",
+        "Cancelado",
+        "Em An\u00e1lise",
+        "Aguardando"
+      ],
+      "description": "Novo status do benef\u00edcio"
+    },
+    "motivo_alteracao": {
+      "type": "string",
+      "enum": [
+        "Revis\u00e3o Cadastral",
+        "Descumprimento de Condicionalidades",
+        "Renda Acima do Limite",
+        "Solicita\u00e7\u00e3o do Benefici\u00e1rio",
+        "Erro de Cadastro",
+        "\u00d3bito",
+        "Mudan\u00e7a de Munic\u00edpio",
+        "Regulariza\u00e7\u00e3o de Pend\u00eancia",
+        "Outros"
+      ]
+    },
+    "justificativa": {
+      "type": "string"
+    },
+    "usuario_responsavel": {
+      "type": "string"
+    },
+    "data_hora_alteracao": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "cpf_beneficiario",
+    "nome_beneficiario",
+    "status_novo",
+    "motivo_alteracao"
+  ]
+}
