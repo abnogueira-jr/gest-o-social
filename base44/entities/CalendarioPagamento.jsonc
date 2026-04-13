@@ -1,0 +1,26 @@
+{
+  "name": "CalendarioPagamento",
+  "type": "object",
+  "properties": {
+    "data_deposito": {
+      "type": "string",
+      "format": "date",
+      "description": "Data do dep\u00f3sito"
+    },
+    "valor_deposito": {
+      "type": "number",
+      "description": "Valor do dep\u00f3sito (R$)"
+    },
+    "valor_utilizado": {
+      "type": "number",
+      "description": "Valor utilizado (R$)"
+    },
+    "valor_disponivel": {
+      "type": "number",
+      "description": "Valor dispon\u00edvel (R$)"
+    }
+  },
+  "required": [
+    "data_deposito"
+  ]
+}

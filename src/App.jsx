@@ -8,6 +8,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
 import PainelDimensional from './pages/PainelDimensional';
+import TabelasCalendario from './pages/TabelasCalendario';
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
@@ -59,6 +60,7 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/PainelDimensional" element={<LayoutWrapper currentPageName="PainelDimensional"><PainelDimensional /></LayoutWrapper>} />
+      <Route path="/TabelasCalendario" element={<LayoutWrapper currentPageName="TabelasCalendario"><TabelasCalendario /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
