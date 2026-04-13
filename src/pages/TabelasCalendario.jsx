@@ -4,20 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2 } from "lucide-react";
 
-const MESES = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-const DIAS_SEMANA = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+const MESES = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+  "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const DIAS_SEMANA = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 
 function fmt(val) {
   return Number(val || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-const EMPTY_FORM = { data_deposito: "", valor_deposito: "", valor_utilizado: "", valor_disponivel: "" };
+const EMPTY_FORM = { data: "", operacao: "Crédito", valor: "" };
 
 export default function TabelasCalendario() {
-  const [hoje] = useState(new Date());
+  const hoje = new Date();
   const [mes, setMes] = useState(hoje.getMonth());
   const [ano, setAno] = useState(hoje.getFullYear());
   const [registros, setRegistros] = useState([]);
@@ -30,7 +31,7 @@ export default function TabelasCalendario() {
 
   const carregar = async () => {
     setLoading(true);
-    const data = await base44.entities.CalendarioPagamento.list("-data_deposito", 500);
+    const data = await base44.entities.CalendarioPagamento.list("-data", 1000);
     setRegistros(data);
     setLoading(false);
   };
@@ -45,59 +46,38 @@ export default function TabelasCalendario() {
   );
   while (celulas.length % 7 !== 0) celulas.push(null);
 
+  const chaveData = (dia) =>
+    `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
+
   const registrosPorDia = (dia) => {
     if (!dia) return [];
-    const key = `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`;
-    return registros.filter(r => r.data_deposito === key);
+    return registros.filter(r => r.data === chaveData(dia));
   };
 
+  // KPIs do mês
   const mesAtual = `${ano}-${String(mes + 1).padStart(2, "0")}`;
-  const registrosMes = registros.filter(r => r.data_deposito?.startsWith(mesAtual));
-  const totalDepositado = registrosMes.reduce((s, r) => s + Number(r.valor_deposito || 0), 0);
-  const totalUtilizado = registrosMes.reduce((s, r) => s + Number(r.valor_utilizado || 0), 0);
-  const totalDisponivel = registrosMes.reduce((s, r) => s + Number(r.valor_disponivel || 0), 0);
+  const registrosMes = registros.filter(r => r.data?.startsWith(mesAtual));
+  const totalCredito = registrosMes.filter(r => r.operacao === "Crédito").reduce((s, r) => s + Number(r.valor || 0), 0);
+  const totalDebito = registrosMes.filter(r => r.operacao === "Débito").reduce((s, r) => s + Number(r.valor || 0), 0);
+  const totalDisponivel = totalCredito - totalDebito;
 
-  const set = (k, v) => {
-    setForm(f => {
-      const novo = { ...f, [k]: v };
-      // auto-calcular disponível
-      if (k === "valor_deposito" || k === "valor_utilizado") {
-        const dep = parseFloat(k === "valor_deposito" ? v : novo.valor_deposito) || 0;
-        const util = parseFloat(k === "valor_utilizado" ? v : novo.valor_utilizado) || 0;
-        novo.valor_disponivel = (dep - util).toFixed(2);
-      }
-      return novo;
-    });
-  };
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const abrirNovo = (dia) => {
-    const data = dia
-      ? `${ano}-${String(mes + 1).padStart(2, "0")}-${String(dia).padStart(2, "0")}`
-      : "";
-    setForm({ ...EMPTY_FORM, data_deposito: data });
+    setForm({ ...EMPTY_FORM, data: dia ? chaveData(dia) : "" });
     setEditId(null);
     setModalOpen(true);
   };
 
   const abrirEditar = (reg) => {
-    setForm({
-      data_deposito: reg.data_deposito || "",
-      valor_deposito: reg.valor_deposito || "",
-      valor_utilizado: reg.valor_utilizado || "",
-      valor_disponivel: reg.valor_disponivel || "",
-    });
+    setForm({ data: reg.data || "", operacao: reg.operacao || "Crédito", valor: reg.valor || "" });
     setEditId(reg.id);
     setModalOpen(true);
   };
 
   const salvar = async () => {
     setSaving(true);
-    const payload = {
-      data_deposito: form.data_deposito,
-      valor_deposito: parseFloat(form.valor_deposito) || 0,
-      valor_utilizado: parseFloat(form.valor_utilizado) || 0,
-      valor_disponivel: parseFloat(form.valor_disponivel) || 0,
-    };
+    const payload = { data: form.data, operacao: form.operacao, valor: parseFloat(form.valor) || 0 };
     if (editId) {
       await base44.entities.CalendarioPagamento.update(editId, payload);
     } else {
@@ -129,25 +109,31 @@ export default function TabelasCalendario() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-800">Calendário de Pagamentos</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Controle de depósitos e saldos por data</p>
+          <p className="text-sm text-slate-500 mt-0.5">Controle de créditos e débitos por data</p>
         </div>
         <Button onClick={() => abrirNovo(null)} className="bg-sky-600 hover:bg-sky-700 gap-2">
           <Plus size={15} /> Inserir
         </Button>
       </div>
 
-      {/* KPIs do mês */}
+      {/* KPIs */}
       <div className="grid grid-cols-3 gap-4">
-        {[
-          { label: "Total Depositado", value: fmt(totalDepositado), color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
-          { label: "Total Utilizado", value: fmt(totalUtilizado), color: "text-red-500 bg-red-50 border-red-200" },
-          { label: "Total Disponível", value: fmt(totalDisponivel), color: "text-sky-600 bg-sky-50 border-sky-200" },
-        ].map(k => (
-          <div key={k.label} className={`border rounded-xl px-4 py-3 ${k.color}`}>
-            <p className="text-xs font-medium opacity-70">{k.label} — {MESES[mes]}/{ano}</p>
-            <p className="text-lg font-bold mt-0.5">{k.value}</p>
-          </div>
-        ))}
+        <div className="border border-emerald-200 bg-emerald-50 rounded-xl px-4 py-3">
+          <p className="text-xs font-medium text-emerald-600 opacity-80">Total Crédito — {MESES[mes]}/{ano}</p>
+          <p className="text-lg font-bold text-emerald-700 mt-0.5">{fmt(totalCredito)}</p>
+        </div>
+        <div className="border border-red-200 bg-red-50 rounded-xl px-4 py-3">
+          <p className="text-xs font-medium text-red-500 opacity-80">Total Débito — {MESES[mes]}/{ano}</p>
+          <p className="text-lg font-bold text-red-600 mt-0.5">{fmt(totalDebito)}</p>
+        </div>
+        <div className={`border rounded-xl px-4 py-3 ${totalDisponivel >= 0 ? "border-sky-200 bg-sky-50" : "border-orange-200 bg-orange-50"}`}>
+          <p className={`text-xs font-medium opacity-80 ${totalDisponivel >= 0 ? "text-sky-600" : "text-orange-500"}`}>
+            Saldo Disponível — {MESES[mes]}/{ano}
+          </p>
+          <p className={`text-lg font-bold mt-0.5 ${totalDisponivel >= 0 ? "text-sky-700" : "text-orange-600"}`}>
+            {fmt(totalDisponivel)}
+          </p>
+        </div>
       </div>
 
       {/* Calendário */}
@@ -181,12 +167,14 @@ export default function TabelasCalendario() {
               const regs = registrosPorDia(dia);
               const isHoje = dia === hoje.getDate() && mes === hoje.getMonth() && ano === hoje.getFullYear();
               const isSel = dia === diaSelecionado;
+              const credDia = regs.filter(r => r.operacao === "Crédito").reduce((s, r) => s + Number(r.valor || 0), 0);
+              const debDia = regs.filter(r => r.operacao === "Débito").reduce((s, r) => s + Number(r.valor || 0), 0);
               return (
                 <div
                   key={i}
                   onClick={() => dia && setDiaSelecionado(dia === diaSelecionado ? null : dia)}
-                  className={`min-h-[72px] border-b border-r border-slate-100 p-1.5 cursor-pointer transition-colors
-                    ${!dia ? "bg-slate-50/50" : "hover:bg-sky-50/50"}
+                  className={`min-h-[76px] border-b border-r border-slate-100 p-1.5 transition-colors
+                    ${!dia ? "bg-slate-50/50" : "cursor-pointer hover:bg-sky-50/40"}
                     ${isSel ? "bg-sky-50 ring-2 ring-inset ring-sky-400" : ""}
                   `}
                 >
@@ -196,16 +184,15 @@ export default function TabelasCalendario() {
                         ${isHoje ? "bg-sky-600 text-white" : "text-slate-600"}`}>
                         {dia}
                       </div>
-                      {regs.map(r => (
-                        <div key={r.id} className="text-[10px] bg-emerald-100 text-emerald-700 rounded px-1 py-0.5 mb-0.5 truncate">
-                          {fmt(r.valor_deposito)}
+                      {credDia > 0 && (
+                        <div className="text-[10px] bg-emerald-100 text-emerald-700 rounded px-1 py-0.5 mb-0.5 truncate">
+                          + {fmt(credDia)}
                         </div>
-                      ))}
-                      {regs.length === 0 && (
-                        <button
-                          onClick={e => { e.stopPropagation(); abrirNovo(dia); }}
-                          className="text-[10px] text-slate-300 hover:text-sky-500 hidden group-hover:block"
-                        >+ add</button>
+                      )}
+                      {debDia > 0 && (
+                        <div className="text-[10px] bg-red-100 text-red-600 rounded px-1 py-0.5 truncate">
+                          - {fmt(debDia)}
+                        </div>
                       )}
                     </>
                   )}
@@ -234,18 +221,24 @@ export default function TabelasCalendario() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 text-xs text-slate-500">
-                  <th className="text-left py-2 font-medium">Depositado</th>
-                  <th className="text-right py-2 font-medium">Utilizado</th>
-                  <th className="text-right py-2 font-medium">Disponível</th>
+                  <th className="text-left py-2 font-medium">Operação</th>
+                  <th className="text-right py-2 font-medium">Valor</th>
                   <th className="py-2"></th>
                 </tr>
               </thead>
               <tbody>
                 {regDiaSel.map(r => (
                   <tr key={r.id} className="border-b border-slate-50">
-                    <td className="py-2 font-medium text-emerald-700">{fmt(r.valor_deposito)}</td>
-                    <td className="py-2 text-right text-red-500">{fmt(r.valor_utilizado)}</td>
-                    <td className="py-2 text-right text-sky-700 font-semibold">{fmt(r.valor_disponivel)}</td>
+                    <td className="py-2">
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
+                        r.operacao === "Crédito"
+                          ? "bg-emerald-100 text-emerald-700"
+                          : "bg-red-100 text-red-600"
+                      }`}>{r.operacao}</span>
+                    </td>
+                    <td className={`py-2 text-right font-semibold ${r.operacao === "Crédito" ? "text-emerald-700" : "text-red-600"}`}>
+                      {r.operacao === "Crédito" ? "+" : "-"} {fmt(r.valor)}
+                    </td>
                     <td className="py-2 text-right">
                       <div className="flex justify-end gap-1">
                         <button onClick={() => abrirEditar(r)} className="p-1 text-slate-400 hover:text-sky-600 rounded">
@@ -266,33 +259,35 @@ export default function TabelasCalendario() {
 
       {/* Modal */}
       <Dialog open={modalOpen} onOpenChange={setModalOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>{editId ? "Editar Registro" : "Novo Registro de Pagamento"}</DialogTitle>
+            <DialogTitle>{editId ? "Editar Lançamento" : "Novo Lançamento"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-2">
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-600">Data do Depósito <span className="text-red-500">*</span></Label>
-              <Input type="date" value={form.data_deposito} onChange={e => set("data_deposito", e.target.value)} />
+              <Label className="text-xs font-medium text-slate-600">Data <span className="text-red-500">*</span></Label>
+              <Input type="date" value={form.data} onChange={e => set("data", e.target.value)} />
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-600">Valor do Depósito (R$)</Label>
-              <Input type="number" step="0.01" min="0" value={form.valor_deposito}
-                onChange={e => set("valor_deposito", e.target.value)} placeholder="0,00" />
+              <Label className="text-xs font-medium text-slate-600">Operação</Label>
+              <Select value={form.operacao} onValueChange={v => set("operacao", v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Crédito">Crédito</SelectItem>
+                  <SelectItem value="Débito">Débito</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-600">Valor Utilizado (R$)</Label>
-              <Input type="number" step="0.01" min="0" value={form.valor_utilizado}
-                onChange={e => set("valor_utilizado", e.target.value)} placeholder="0,00" />
+              <Label className="text-xs font-medium text-slate-600">Valor (R$)</Label>
+              <Input type="number" step="0.01" min="0" value={form.valor}
+                onChange={e => set("valor", e.target.value)} placeholder="0,00" />
             </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-slate-600">Valor Disponível (R$)</Label>
-              <Input type="number" step="0.01" value={form.valor_disponivel}
-                onChange={e => set("valor_disponivel", e.target.value)} placeholder="Calculado automaticamente" className="bg-slate-50" />
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex justify-end gap-2 pt-1">
               <Button variant="outline" onClick={() => setModalOpen(false)}>Cancelar</Button>
-              <Button onClick={salvar} disabled={!form.data_deposito || saving} className="bg-sky-600 hover:bg-sky-700 gap-2">
+              <Button onClick={salvar} disabled={!form.data || !form.valor || saving} className="bg-sky-600 hover:bg-sky-700 gap-2">
                 {saving && <Loader2 size={13} className="animate-spin" />}
                 Salvar
               </Button>

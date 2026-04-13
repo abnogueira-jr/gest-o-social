@@ -2,25 +2,27 @@
   "name": "CalendarioPagamento",
   "type": "object",
   "properties": {
-    "data_deposito": {
+    "data": {
       "type": "string",
       "format": "date",
-      "description": "Data do dep\u00f3sito"
+      "description": "Data do lan\u00e7amento"
     },
-    "valor_deposito": {
-      "type": "number",
-      "description": "Valor do dep\u00f3sito (R$)"
+    "operacao": {
+      "type": "string",
+      "enum": [
+        "Cr\u00e9dito",
+        "D\u00e9bito"
+      ],
+      "description": "Tipo de opera\u00e7\u00e3o"
     },
-    "valor_utilizado": {
+    "valor": {
       "type": "number",
-      "description": "Valor utilizado (R$)"
-    },
-    "valor_disponivel": {
-      "type": "number",
-      "description": "Valor dispon\u00edvel (R$)"
+      "description": "Valor do lan\u00e7amento (R$)"
     }
   },
   "required": [
-    "data_deposito"
+    "data",
+    "operacao",
+    "valor"
   ]
 }
