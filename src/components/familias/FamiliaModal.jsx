@@ -26,6 +26,7 @@ const EMPTY = {
   beneficios_lista: [], patrimonios: [],
   documentos_obrigatorios: { termo_veracidade: false, doc_identidade_frente: false, doc_identidade_verso: false, comprovante_residencia: false, comprovante_renda: false },
   documentos_especificos: { registro_cadastro_federal: false, laudo_medico: false, laudo_deficiencia: false, carteira_vacinacao: false, laudo_autismo: false },
+  documentos_arquivos: {},
   endereco: "", cep: "", bairro: "", regiao: "", estado: "Mato Grosso do Sul", municipio: "",
   situacao_moradia: "", tipo_moradia: "", tempo_residencia_ms: "",
   latitude: "", longitude: "",
@@ -320,33 +321,117 @@ function PatrimoniosEditor({ patrimonios, onChange }) {
 }
 
 // ─── ETAPA 4: Documentos ─────────────────────────────────────────────────────
+function CheckItemWithUpload({ checked, onCheck, label, fileUrl, onUpload, uploading }) {
+  const inputRef = useState(null);
+  return (
+    <div className="py-2 border-b border-slate-50 last:border-0">
+      <div className="flex items-center gap-2">
+        <input type="checkbox" checked={!!checked} onChange={e => onCheck(e.target.checked)}
+          className="accent-sky-600 w-4 h-4 flex-shrink-0" />
+        <span className="text-sm text-slate-700 flex-1">{label}</span>
+      </div>
+      {checked && (
+        <div className="mt-2 ml-6 flex items-center gap-2 flex-wrap">
+          {fileUrl ? (
+            <>
+              <a href={fileUrl} target="_blank" rel="noreferrer"
+                className="flex items-center gap-1.5 text-xs text-sky-700 bg-sky-50 border border-sky-200 rounded-lg px-3 py-1.5 hover:bg-sky-100 transition-colors">
+                <FileText size={13} /> Ver arquivo anexado
+              </a>
+              <button onClick={() => onUpload(null)}
+                className="text-xs text-red-400 hover:text-red-600 border border-red-200 rounded-lg px-2 py-1.5 hover:bg-red-50 transition-colors">
+                Remover
+              </button>
+            </>
+          ) : (
+            <label className={`flex items-center gap-1.5 text-xs cursor-pointer border rounded-lg px-3 py-1.5 transition-colors ${
+              uploading ? "text-slate-400 border-slate-200 bg-slate-50" : "text-sky-700 border-sky-300 bg-sky-50 hover:bg-sky-100"
+            }`}>
+              {uploading
+                ? <><Loader2 size={13} className="animate-spin" /> Enviando...</>
+                : <><Plus size={13} /> Anexar arquivo (PDF ou imagem)</>}
+              <input type="file" accept=".pdf,image/*" className="hidden"
+                disabled={uploading}
+                onChange={async e => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const { base44 } = await import("@/api/base44Client");
+                  const { file_url } = await base44.integrations.Core.UploadFile({ file });
+                  onUpload(file_url);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Step4({ form, set }) {
+  const [uploading, setUploading] = useState({});
   const setDocOb = (k, v) => set("documentos_obrigatorios", { ...form.documentos_obrigatorios, [k]: v });
   const setDocEsp = (k, v) => set("documentos_especificos", { ...form.documentos_especificos, [k]: v });
+  const setArquivo = (k, url) => set("documentos_arquivos", { ...(form.documentos_arquivos || {}), [k]: url });
+  const handleUpload = async (key, file) => {
+    if (!file) { setArquivo(key, null); return; }
+    setUploading(u => ({ ...u, [key]: true }));
+    const { base44 } = await import("@/api/base44Client");
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setArquivo(key, file_url);
+    setUploading(u => ({ ...u, [key]: false }));
+  };
   const docOb = form.documentos_obrigatorios || {};
   const docEsp = form.documentos_especificos || {};
+  const arqs = form.documentos_arquivos || {};
+
+  const obDocs = [
+    { key: "termo_veracidade", label: "Termo de Veracidade" },
+    { key: "doc_identidade_frente", label: "Documento de Identificação com Foto - Frente" },
+    { key: "doc_identidade_verso", label: "Documento de Identificação com Foto - Verso" },
+    { key: "comprovante_residencia", label: "Comprovante de Residência Atualizado (máximo de três meses)" },
+    { key: "comprovante_renda", label: "Comprovante de Renda Familiar (Holerite, Cópia da CTPS, Declaração de Trabalhador Autônomo)" },
+  ];
+  const espDocs = [
+    { key: "registro_cadastro_federal", label: "Prova de Registro no Cadastro Federal" },
+    { key: "laudo_medico", label: "Laudo Médico (caso esteja doente)" },
+    { key: "laudo_deficiencia", label: "Laudo de Deficiência (caso possua deficiência)" },
+    { key: "carteira_vacinacao", label: "Carteira de Vacinação Atualizada (opcional)" },
+    { key: "laudo_autismo", label: "Laudo de Diagnóstico de Autismo (se aplicável)" },
+  ];
 
   return (
     <div className="space-y-5">
       <div>
         <SectionTitle icon={FileText} color="text-sky-600">Documentos Obrigatórios</SectionTitle>
-        <div className="bg-white border border-slate-200 rounded-lg px-4 py-2">
-          <CheckItem checked={docOb.termo_veracidade} onChange={v => setDocOb("termo_veracidade", v)} label="Termo de Veracidade" />
-          <CheckItem checked={docOb.doc_identidade_frente} onChange={v => setDocOb("doc_identidade_frente", v)} label="Documento de Identificação com Foto - Frente" />
-          <CheckItem checked={docOb.doc_identidade_verso} onChange={v => setDocOb("doc_identidade_verso", v)} label="Documento de Identificação com Foto - Verso" />
-          <CheckItem checked={docOb.comprovante_residencia} onChange={v => setDocOb("comprovante_residencia", v)} label="Comprovante de Residência Atualizado (máximo de três meses)" />
-          <CheckItem checked={docOb.comprovante_renda} onChange={v => setDocOb("comprovante_renda", v)} label="Comprovante de Renda Familiar (Holerite, Cópia da CTPS, Declaração de Trabalhador Autônomo)" />
+        <div className="bg-white border border-slate-200 rounded-lg px-4 py-1">
+          {obDocs.map(d => (
+            <CheckItemWithUpload key={d.key}
+              checked={docOb[d.key]}
+              onCheck={v => setDocOb(d.key, v)}
+              label={d.label}
+              fileUrl={arqs[d.key]}
+              uploading={!!uploading[d.key]}
+              onUpload={url => url === null ? setArquivo(d.key, null) : setArquivo(d.key, url)}
+            />
+          ))}
         </div>
       </div>
 
       <div>
         <SectionTitle icon={null} color="text-violet-600">Documentos Específicos</SectionTitle>
-        <div className="bg-white border border-slate-200 rounded-lg px-4 py-2">
-          <CheckItem checked={docEsp.registro_cadastro_federal} onChange={v => setDocEsp("registro_cadastro_federal", v)} label="Prova de Registro no Cadastro Federal" />
-          <CheckItem checked={docEsp.laudo_medico} onChange={v => setDocEsp("laudo_medico", v)} label="Laudo Médico (caso esteja doente)" />
-          <CheckItem checked={docEsp.laudo_deficiencia} onChange={v => setDocEsp("laudo_deficiencia", v)} label="Laudo de Deficiência (caso possua deficiência)" />
-          <CheckItem checked={docEsp.carteira_vacinacao} onChange={v => setDocEsp("carteira_vacinacao", v)} label="Carteira de Vacinação Atualizada (opcional)" />
-          <CheckItem checked={docEsp.laudo_autismo} onChange={v => setDocEsp("laudo_autismo", v)} label="Laudo de Diagnóstico de Autismo (se aplicável)" />
+        <div className="bg-white border border-slate-200 rounded-lg px-4 py-1">
+          {espDocs.map(d => (
+            <CheckItemWithUpload key={d.key}
+              checked={docEsp[d.key]}
+              onCheck={v => setDocEsp(d.key, v)}
+              label={d.label}
+              fileUrl={arqs[d.key]}
+              uploading={!!uploading[d.key]}
+              onUpload={url => url === null ? setArquivo(d.key, null) : setArquivo(d.key, url)}
+            />
+          ))}
         </div>
       </div>
     </div>

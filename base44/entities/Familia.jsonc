@@ -257,6 +257,42 @@
         }
       }
     },
+    "documentos_arquivos": {
+      "type": "object",
+      "description": "URLs dos arquivos anexados para cada documento",
+      "properties": {
+        "termo_veracidade": {
+          "type": "string"
+        },
+        "doc_identidade_frente": {
+          "type": "string"
+        },
+        "doc_identidade_verso": {
+          "type": "string"
+        },
+        "comprovante_residencia": {
+          "type": "string"
+        },
+        "comprovante_renda": {
+          "type": "string"
+        },
+        "registro_cadastro_federal": {
+          "type": "string"
+        },
+        "laudo_medico": {
+          "type": "string"
+        },
+        "laudo_deficiencia": {
+          "type": "string"
+        },
+        "carteira_vacinacao": {
+          "type": "string"
+        },
+        "laudo_autismo": {
+          "type": "string"
+        }
+      }
+    },
     "num_membros": {
       "type": "number"
     },
