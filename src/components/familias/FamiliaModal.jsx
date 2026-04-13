@@ -18,7 +18,7 @@ const maskTelefone = v => { const d = v.replace(/\D/g, "").slice(0, 11); if (d.l
 const EMPTY = {
   nome_responsavel: "", cpf_responsavel: "", rg_numero: "", cadastro_unico: "",
   data_nascimento: "", genero: "", estado_civil: "", nacionalidade: "Brasileira",
-  escolaridade: "", ultima_serie: "", recadastro: false,
+  escolaridade: "", ultima_serie: "",
   telefone: "", email: "",
   situacao_ocupacao: "", participa_qualifica_ms: false,
   possui_doenca: false, possui_deficiencia: false,
@@ -158,9 +158,7 @@ function Step1({ form, set }) {
             <Input value={form.ultima_serie} onChange={e => set("ultima_serie", e.target.value)} placeholder="Ex: 8ª série" />
           </Field>
         </div>
-        <div className="mt-2">
-          <CheckItem checked={form.recadastro} onChange={v => set("recadastro", v)} label="Recadastro - Concordo com o uso dos meus dados" />
-        </div>
+
       </div>
     </div>
   );

@@ -64,10 +64,6 @@
     "ultima_serie": {
       "type": "string"
     },
-    "recadastro": {
-      "type": "boolean",
-      "default": false
-    },
     "telefone": {
       "type": "string"
     },
