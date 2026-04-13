@@ -78,6 +78,11 @@ const menuItems = [
     page: "Relatorios"
   },
   {
+    label: "Painel Dimensional",
+    icon: Table2,
+    page: "PainelDimensional"
+  },
+  {
     label: "Tabelas",
     icon: Table2,
     children: [
