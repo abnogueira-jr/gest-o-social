@@ -440,16 +440,44 @@ function Step4({ form, set }) {
 
 // ─── ETAPA 5: Endereço ───────────────────────────────────────────────────────
 function Step5({ form, set }) {
-  const [geoLoading, setGeoLoading] = useState(false);
+  const [cepLoading, setCepLoading] = useState(false);
+  const [cepErro, setCepErro] = useState("");
 
-  const capturarGeo = () => {
-    if (!navigator.geolocation) return;
-    setGeoLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      pos => { set("latitude", pos.coords.latitude); set("longitude", pos.coords.longitude); setGeoLoading(false); },
-      () => setGeoLoading(false),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+  const maskCEP = v => v.replace(/\D/g, "").slice(0, 8).replace(/(\d{5})(\d)/, "$1-$2");
+
+  const buscarCEP = async (cepRaw) => {
+    const cep = cepRaw.replace(/\D/g, "");
+    if (cep.length !== 8) return;
+    setCepLoading(true);
+    setCepErro("");
+    try {
+      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = await res.json();
+      if (data.erro) { setCepErro("CEP não encontrado."); setCepLoading(false); return; }
+      set("endereco", data.logradouro || form.endereco);
+      set("bairro", data.bairro || form.bairro);
+      set("estado", data.uf ? `${data.uf}` : form.estado);
+      set("municipio", data.localidade || form.municipio);
+      // Buscar coordenadas do CEP via Nominatim
+      const geoRes = await fetch(
+        `https://nominatim.openstreetmap.org/search?postalcode=${cep}&country=BR&format=json&limit=1`,
+        { headers: { "Accept-Language": "pt-BR" } }
+      );
+      const geoData = await geoRes.json();
+      if (geoData && geoData.length > 0) {
+        set("latitude", parseFloat(geoData[0].lat));
+        set("longitude", parseFloat(geoData[0].lon));
+      }
+    } catch {
+      setCepErro("Erro ao buscar CEP.");
+    }
+    setCepLoading(false);
+  };
+
+  const handleCEPChange = (e) => {
+    const masked = maskCEP(e.target.value);
+    set("cep", masked);
+    if (masked.replace(/\D/g, "").length === 8) buscarCEP(masked);
   };
 
   return (
@@ -457,28 +485,31 @@ function Step5({ form, set }) {
       <div>
         <SectionTitle icon={Home} color="text-sky-600">Informações de Residência</SectionTitle>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Field label="Logradouro" className="sm:col-span-2">
-            <Input value={form.endereco} onChange={e => set("endereco", e.target.value)} placeholder="Rua, número, complemento" />
-          </Field>
+          {/* CEP primeiro */}
           <Field label="CEP">
-            <Input value={form.cep} onChange={e => set("cep", e.target.value)} placeholder="00000-000" />
+            <div className="relative">
+              <Input value={form.cep} onChange={handleCEPChange} placeholder="00000-000" className={cepErro ? "border-red-400" : ""} />
+              {cepLoading && <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-sky-500" />}
+            </div>
+            {cepErro && <p className="text-xs text-red-500 mt-0.5">{cepErro}</p>}
+            {cepLoading && <p className="text-xs text-sky-500 mt-0.5">Buscando endereço e coordenadas...</p>}
           </Field>
           <Field label="Bairro">
             <Input value={form.bairro} onChange={e => set("bairro", e.target.value)} placeholder="Bairro" />
+          </Field>
+          <Field label="Logradouro" className="sm:col-span-2">
+            <Input value={form.endereco} onChange={e => set("endereco", e.target.value)} placeholder="Rua, número, complemento" />
+          </Field>
+          <Field label="Cidade">
+            <Input value={form.municipio} onChange={e => set("municipio", e.target.value)} placeholder="Cidade" />
+          </Field>
+          <Field label="Estado">
+            <Input value={form.estado} onChange={e => set("estado", e.target.value)} />
           </Field>
           <Field label="Região">
             <Select value={form.regiao} onValueChange={v => set("regiao", v)}>
               <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
               <SelectContent>{regioes.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
-            </Select>
-          </Field>
-          <Field label="Estado">
-            <Input value={form.estado} onChange={e => set("estado", e.target.value)} />
-          </Field>
-          <Field label="Cidade">
-            <Select value={form.municipio} onValueChange={v => set("municipio", v)}>
-              <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
-              <SelectContent>{municipiosMS.map(m => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
             </Select>
           </Field>
         </div>
@@ -510,14 +541,9 @@ function Step5({ form, set }) {
       </div>
 
       <div>
-        <SectionTitle icon={MapPin} color="text-violet-600">Localização</SectionTitle>
+        <SectionTitle icon={MapPin} color="text-violet-600">Localização (via CEP)</SectionTitle>
         <div className="bg-sky-50 border border-sky-100 rounded-lg p-3">
-          <div className="flex justify-end mb-2">
-            <Button type="button" size="sm" variant="outline" onClick={capturarGeo} disabled={geoLoading} className="h-7 text-xs border-sky-300 text-sky-700 hover:bg-sky-100 gap-1">
-              {geoLoading ? <Loader2 size={12} className="animate-spin" /> : <Navigation size={12} />}
-              {geoLoading ? "Obtendo..." : "Usar localização atual"}
-            </Button>
-          </div>
+          <p className="text-xs text-slate-500 mb-2">Preenchidas automaticamente ao informar o CEP. Você pode ajustar manualmente se necessário.</p>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Latitude">
               <Input type="number" step="any" value={form.latitude} onChange={e => set("latitude", e.target.value)} placeholder="-20.4697" />
