@@ -1,0 +1,42 @@
+{
+  "name": "HistoricoFamilia",
+  "type": "object",
+  "properties": {
+    "familia_id": {
+      "type": "string",
+      "description": "ID da fam\u00edlia"
+    },
+    "familia_nome": {
+      "type": "string"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "Nota",
+        "Atendimento",
+        "Visita",
+        "Benef\u00edcio",
+        "Cadastro",
+        "Atualiza\u00e7\u00e3o"
+      ],
+      "default": "Nota"
+    },
+    "titulo": {
+      "type": "string"
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "data_evento": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "usuario": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "familia_id",
+    "descricao"
+  ]
+}

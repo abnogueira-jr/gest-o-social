@@ -1,0 +1,37 @@
+{
+  "name": "AtividadeRecente",
+  "type": "object",
+  "properties": {
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "Visita",
+        "Contempla\u00e7\u00e3o",
+        "Pagamento",
+        "Cadastro",
+        "Bloqueio",
+        "Desbloqueio"
+      ]
+    },
+    "descricao": {
+      "type": "string"
+    },
+    "familia_nome": {
+      "type": "string"
+    },
+    "usuario": {
+      "type": "string"
+    },
+    "data_hora": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "referencia_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "tipo",
+    "descricao"
+  ]
+}

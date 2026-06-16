@@ -1,0 +1,56 @@
+{
+  "name": "Pagamento",
+  "type": "object",
+  "properties": {
+    "familia_id": {
+      "type": "string"
+    },
+    "familia_nome": {
+      "type": "string"
+    },
+    "programa_nome": {
+      "type": "string"
+    },
+    "tipo_pagamento": {
+      "type": "string",
+      "enum": [
+        "Cart\u00e3o",
+        "PIX",
+        "Dep\u00f3sito"
+      ]
+    },
+    "valor": {
+      "type": "number"
+    },
+    "mes_referencia": {
+      "type": "string"
+    },
+    "data_pagamento": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Pago",
+        "Pendente",
+        "Cancelado",
+        "Devolvido",
+        "Bloqueado"
+      ]
+    },
+    "numero_cartao": {
+      "type": "string"
+    },
+    "chave_pix": {
+      "type": "string"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "familia_nome",
+    "valor"
+  ]
+}

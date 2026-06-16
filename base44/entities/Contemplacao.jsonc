@@ -1,0 +1,71 @@
+{
+  "name": "Contemplacao",
+  "type": "object",
+  "properties": {
+    "familia_id": {
+      "type": "string"
+    },
+    "familia_nome": {
+      "type": "string"
+    },
+    "programa_id": {
+      "type": "string"
+    },
+    "programa_nome": {
+      "type": "string"
+    },
+    "data_contemplacao": {
+      "type": "string",
+      "format": "date"
+    },
+    "valor": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Rascunho",
+        "Pendente Aprova\u00e7\u00e3o",
+        "Aprovado",
+        "Reprovado",
+        "Suspenso",
+        "Cancelado",
+        "Encerrado"
+      ],
+      "default": "Rascunho"
+    },
+    "mes_referencia": {
+      "type": "string"
+    },
+    "observacoes": {
+      "type": "string"
+    },
+    "parecer_tecnico": {
+      "type": "string"
+    },
+    "tecnico_responsavel": {
+      "type": "string"
+    },
+    "data_parecer": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "decisao_gestor": {
+      "type": "string"
+    },
+    "gestor_responsavel": {
+      "type": "string"
+    },
+    "data_decisao": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "motivo_reprovacao": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "familia_nome",
+    "programa_nome"
+  ]
+}

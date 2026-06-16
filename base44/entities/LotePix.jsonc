@@ -1,0 +1,42 @@
+{
+  "name": "LotePix",
+  "type": "object",
+  "properties": {
+    "numero_lote": {
+      "type": "string"
+    },
+    "data_geracao": {
+      "type": "string",
+      "format": "date"
+    },
+    "data_envio": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Gerado",
+        "Enviado",
+        "Processado",
+        "Erro",
+        "Cancelado"
+      ]
+    },
+    "total_registros": {
+      "type": "number"
+    },
+    "valor_total": {
+      "type": "number"
+    },
+    "arquivo_retorno": {
+      "type": "string"
+    },
+    "observacoes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "numero_lote"
+  ]
+}
